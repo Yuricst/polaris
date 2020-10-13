@@ -13,12 +13,12 @@ from ._rhs_functions import rhs_cr3bp, rhs_cr3bp_with_STM
 
 # ---------------------------------------------------------------------------------------- #
 def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events=None, ivp_method='LSODA', ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=False):
-	"""Propagator function for CR3BP. 
-	The function calls either scipy.integrate.odeint() or scipy.integrate.solve_ivp()
-	odeint() is used if method is 'LSODA' and events=None or force_solve_ivp=False
+    """Propagator function for CR3BP. 
+    The function calls either scipy.integrate.odeint() or scipy.integrate.solve_ivp()
+    odeint() is used if method is 'LSODA' and events=None or force_solve_ivp=False
 
-	Args:
-		mu (float): cr3bp parameter
+    Args:
+        mu (float): cr3bp parameter
         state0 (numpy array): numpy array containing cartesian state
         tf (float): final time of integration
         steps (float): number of steps to extract points (default is 2000)
@@ -29,10 +29,10 @@ def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events
         ivp_rtol (float): relative tolerance in solve_ivp() function (default is 1e-12)
         ivp_atol (float): absolute tolerance in solve_ivp() function (default is 1e-12)
         force_solve_ivp (bool): forcing the use of solve_ivp function (default is False)
-	Returns:
-		(dict): dictionary with entries "xs", "ys", "zs", "vxs", "vys", "vzs", "times", "stms", "statef", "dstatef", "eventStates", "eventTimes"
-	"""
-	# decides whether to use solve_ivp or odeint
+    Returns:
+        (dict): dictionary with entries "xs", "ys", "zs", "vxs", "vys", "vzs", "times", "stms", "statef", "dstatef", "eventStates", "eventTimes"
+    """
+    # decides whether to use solve_ivp or odeint
     if events==None and ivp_method=='LSODA' and force_solve_ivp==False:
         # use odeint
         propout = propagate_cr3bp_odeint(mu, state0, tf, steps=steps, t0=t0, stm_option=stm_option, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
@@ -43,9 +43,9 @@ def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events
 
 
 # ---------------------------------------------------------------------------------------- #
-def propagate_cr3bp_odeint(mu, state0, tf, steps=steps, t0=t0, stm_option=stm_option, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol):
-	"""Propagator for CR3BP using odeint()"""
-	# construct time-array where state will be returned
+def propagate_cr3bp_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, ivp_rtol=1e-12, ivp_atol=1e-12):
+    """Propagator for CR3BP using odeint()"""
+    # construct time-array where state will be returned
     time_array = np.linspace(t0, tf, steps)
 
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
@@ -99,26 +99,26 @@ def propagate_cr3bp_odeint(mu, state0, tf, steps=steps, t0=t0, stm_option=stm_op
 
     # prepare output dictionary
     out = {
-    	"times": times,
-    	"xs": x_arr,
-    	"ys": y_arr,
-    	"zs": z_arr,
-    	"vxs": vx_arr,
-    	"vys": vy_arr,
-    	"vzs": vz_arr,
-    	"statef": statef, 
-    	"stms":stmmat, 
-    	"dstatef":dstatef, 
-    	"eventStates":eventStates, 
-    	"eventTimes":eventTimes
+        "times": times,
+        "xs": x_arr,
+        "ys": y_arr,
+        "zs": z_arr,
+        "vxs": vx_arr,
+        "vys": vy_arr,
+        "vzs": vz_arr,
+        "statef": statef, 
+        "stms":stmmat, 
+        "dstatef":dstatef, 
+        "eventStates":eventStates, 
+        "eventTimes":eventTimes
     }
     return out
 
 
 # ---------------------------------------------------------------------------------------- #
-def propagate_cr3bp_solve_ivp(mu, state0, tf, steps=steps,t0=t0, stm_option=stm_option, events=events, ivp_method=ivp_method, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol):
-	"""Propagator for CR3BP using solve_ivp()"""
-	# construct time-array where state will be returned
+def propagate_cr3bp_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=False, events=None, ivp_method="LSODA", ivp_rtol=1e-12, ivp_atol=1e-12):
+    """Propagator for CR3BP using solve_ivp()"""
+    # construct time-array where state will be returned
     time_array = np.linspace(t0, tf, steps)
 
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
@@ -181,18 +181,18 @@ def propagate_cr3bp_solve_ivp(mu, state0, tf, steps=steps,t0=t0, stm_option=stm_
 
     # prepare output dictionary
     out = {
-    	"times": times,
-    	"xs": x_arr,
-    	"ys": y_arr,
-    	"zs": z_arr,
-    	"vxs": vx_arr,
-    	"vys": vy_arr,
-    	"vzs": vz_arr,
-    	"statef": statef, 
-    	"stmmat":stmmat, 
-    	"dstatef":dstatef, 
-    	"eventStates":eventStates, 
-    	"eventTimes":eventTimes
+        "times": times,
+        "xs": x_arr,
+        "ys": y_arr,
+        "zs": z_arr,
+        "vxs": vx_arr,
+        "vys": vy_arr,
+        "vzs": vz_arr,
+        "statef": statef, 
+        "stmmat":stmmat, 
+        "dstatef":dstatef, 
+        "eventStates":eventStates, 
+        "eventTimes":eventTimes
     }
     return out
 
