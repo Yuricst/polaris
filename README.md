@@ -8,7 +8,8 @@ polaris is a Python library for preliminary spacecraft trajectory design.
 
 
 ## Usage
-```@python
+```python
+import polaris.SolarSystemConstants as ssc
 import polaris.Propagator as prop
 ```
 
