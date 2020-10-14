@@ -3,8 +3,6 @@
 Functions define GM values of solar system objects
 """
 
-import sys
-
 
 # ------------------------------------------------------------------------- #
 def get_gm(*args):
@@ -12,7 +10,7 @@ def get_gm(*args):
     For body names, refer to: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/naif_ids.html
 
     Args:
-        naifIDs (str): tuple containing strings of naif ID to use to extract GM values
+        naifIDs (str): tuple containing strings of naif ID to use to extract GM values. Multiple naifIDs may be passed in a single function call.
 
     Returns:
         (lst): lst of GM values
