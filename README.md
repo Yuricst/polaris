@@ -1,6 +1,8 @@
 # polaris
  polaris --- PythOnLibrary for AstRodynamIcS
 
+![Alt text](./etc/polaris_logo.png?raw=true "Title")
+
 polaris is a Python library for preliminary spacecraft trajectory design. 
 
 ## Dependencies
