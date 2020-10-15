@@ -11,7 +11,7 @@ from numba import jit
 # ------------------------------------------------------------------------------------------------ #
 # define RHS function in two body problem
 @jit(nopython=True)
-def rhs_2bp(t,state,gm):
+def rhs_twobody(t,state,gm):
     """Equation of motion in two body problem, formulated for scipy.integrate.solve=ivp(), compatible with njit
     
     Args:
