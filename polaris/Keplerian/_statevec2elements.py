@@ -5,7 +5,7 @@ Functions to convert from state vector to conic elements
 
 
 import numpy as np
-from ._conicElements import get_inclination, get_raan, get_eccentricity, get_omega, get_trueanom
+from ._conicElements import get_inclination, get_raan, get_eccentricity, get_omega, get_trueanom, get_semiMajorAxis, get_period
 
 
 def sv2elts(state, mu):
@@ -27,12 +27,14 @@ def sv2elts(state, mu):
 	"""
 	r = state[0:3]
 	v = state[3:6]
-	hvec  = np.cross(r,v)
-	incl  = get_inclination(state)
-	raan  = get_raan(state)
-	ecc   = get_eccentricity(state, mu)
-	omega = get_omega(state, mu)
-	theta = get_trueanom(state, mu)
+	hvec   = np.cross(r,v)
+	incl   = get_inclination(state)
+	raan   = get_raan(state)
+	ecc    = get_eccentricity(state, mu)
+	omega  = get_omega(state, mu)
+	theta  = get_trueanom(state, mu)
+	period = get_period(state, mu)
+	a      = get_semiMajorAxis(state, mu)
 
 	# create dictionary to return
 	elts = {
@@ -41,7 +43,9 @@ def sv2elts(state, mu):
 		"evec": ecc,
 		"raan": raan, 
 		"omega": omega, 
-		"theta": theta
+		"theta": theta,
+		"period": period,
+		"semiMajorAxis": a
 	}
 	return elts
 

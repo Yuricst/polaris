@@ -12,7 +12,7 @@ from ._rhs_functions import rhs_cr3bp, rhs_cr3bp_with_STM
 
 
 # ---------------------------------------------------------------------------------------- #
-def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events=None, ivp_method='LSODA', ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=False, switch2solveivp=True):
+def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events=None, ivp_method='LSODA', ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=False, switch2solveivp=True, message=False):
     """Propagator function for CR3BP. 
     The function calls either scipy.integrate.odeint() or scipy.integrate.solve_ivp()
     odeint() is used if method is 'LSODA' and events=None or force_solve_ivp=False
@@ -30,6 +30,7 @@ def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events
         ivp_atol (float): absolute tolerance in solve_ivp() function (default is 1e-12)
         force_solve_ivp (bool): forcing the use of solve_ivp function (default is False)
         switch2solveivp (bool): if set to True, when integration is unsuccessful with odeint, function is switched to solve_ivp()
+        message (bool): whether to display message when switching from odeint() to solve_ivp(), default is False
     Returns:
         (dict): dictionary with entries "xs", "ys", "zs", "vxs", "vys", "vzs", "times", "stms", "statef", "dstatef", "eventStates", "eventTimes"
     """
@@ -39,7 +40,8 @@ def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events
         propout, infodict = propagate_cr3bp_odeint(mu, state0, tf, steps=steps, t0=t0, stm_option=stm_option, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
         # check if integration is successfully done
         if infodict['message']!='Integration successful.' and switch2solveivp==True:
-            print('Failed with odeint(); switching to solve_ivp() for integration')
+            if message==True:
+                print('Failed with odeint(); switching to solve_ivp() for integration')
             propout = propagate_cr3bp_solve_ivp(mu, state0, tf, steps=steps, t0=t0, stm_option=stm_option, events=events, ivp_method=ivp_method, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
     else:
         # use solve_ivp
