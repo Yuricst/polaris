@@ -8,7 +8,14 @@
 polaris is a Python library for preliminary spacecraft trajectory design. 
 
 ### Dependencies
-- numpy, scipy, numba
+- numba
+- numpy
+- pandas
+- scipy
+
+Although not necessary to run polaris, the following packages are also used within the example scripts and Jupyter notebooks:
+- tqdm
+- plotly
 
 ### Installation
 Clone this repository with
