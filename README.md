@@ -7,11 +7,16 @@
 
 polaris is a Python library for preliminary spacecraft trajectory design. 
 
-## Dependencies
+### Dependencies
 - numpy, scipy, numba
 
+### Installation
+Clone this repository with
+'''
+$ git clone https://github.com/Yuricst/polaris.git
+'''
 
-## Usage
+### Usage
 ```python
 import polaris.SolarSystemConstants as ssc
 import polaris.Propagator as prop
