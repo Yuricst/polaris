@@ -12,9 +12,9 @@ polaris is a Python library for preliminary spacecraft trajectory design.
 
 ### Installation
 Clone this repository with
-'''
+```bash
 $ git clone https://github.com/Yuricst/polaris.git
-'''
+```
 
 ### Usage
 ```python
