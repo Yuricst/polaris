@@ -15,5 +15,7 @@ from ._stabilityIndex import stabilityIndex
 # manifold functions
 from ._manifold import get_manifold
 
+# differential correction functions
+from ._ssdc_periodic_xzplane import ssdc_periodic_xzplane
 
 

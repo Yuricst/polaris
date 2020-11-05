@@ -12,7 +12,7 @@ from ._rhs_functions import rhs_cr3bp, rhs_cr3bp_with_STM
 
 
 # ---------------------------------------------------------------------------------------- #
-def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events=None, ivp_method='LSODA', ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=False, switch2solveivp=True, message=False):
+def propagate_cr3bp(mu, state0, tf, steps=200, t0=0.0, stm_option=False, events=None, ivp_method='LSODA', ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=False, switch2solveivp=True, message=False):
     """Propagator function for CR3BP. 
     The function calls either scipy.integrate.odeint() or scipy.integrate.solve_ivp()
     odeint() is used if method is 'LSODA' and events=None or force_solve_ivp=False
@@ -21,7 +21,7 @@ def propagate_cr3bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events
         mu (float): cr3bp parameter
         state0 (numpy array): numpy array containing cartesian state
         tf (float): final time of integration
-        steps (float): number of steps to extract points (default is 2000)
+        steps (float): number of steps to extract points (default is 200)
         t0 (float): initial time
         stm_option (bool): choice whether to also propagate STM (defualt is False)
         events (func): event function (default is None)
