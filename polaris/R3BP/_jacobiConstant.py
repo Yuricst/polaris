@@ -9,7 +9,7 @@ from numba import jit
 
 # function for Jacobi constant
 @jit(nopython=True)
-def jacobiConstant(mu,state):
+def jacobiConstant(mu, state):
     """Function returns jacobi constant given a cartesian state
 
     Args:
