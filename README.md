@@ -29,3 +29,4 @@ import polaris.SolarSystemConstants as ssc
 import polaris.Propagator as prop
 ```
 
+For examples, go to ```./examples/``` to see Jupyter notebook tutorials. 
