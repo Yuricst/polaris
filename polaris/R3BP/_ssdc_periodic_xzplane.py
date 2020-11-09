@@ -17,13 +17,13 @@ from .. Propagator import propagate_cr3bp, rhs_cr3bp, ssdc
 def ssdc_periodic_xzplane(mu, state0, period0, fix="period", tolDC=1e-11, iter_max=10, message=False):
     """Wrapper for single-shooting differential correction for periodic trajectory with symmetry about xz-plane
     Args:
-        mu (float):
-        state0 (np.array):
-        period0 (float):
-        fix (str): 
-        tolDC (float):
-        iter_max (int): 
-        message (bool): 
+        mu (float): CR3BP system parameter
+        state0 (np.array): initial guess state-vector, in canonical units
+        period0 (float): initial guess period, in canonical units
+        fix (str): parameter to keep fixed during differential correction, "period" or "z"
+        tolDC (float): tolerance on differential correction
+        iter_max (int): maximum allowable iteration 
+        message (bool): whether to display message during the process
     Returns:
         (tuple): tuple of period, state, and convergence flag (1 or 0)
     """
