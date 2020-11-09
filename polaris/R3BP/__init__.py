@@ -22,6 +22,7 @@ from ._ssdc_periodic_xzplane import ssdc_periodic_xzplane
 # halo in 3rd order approximation
 from ._approxHalo3rdOrder import get_halo_approx
 
-
+# jacobi contours
+from ._jacobiContour import get_jacobi_contour
 
 
