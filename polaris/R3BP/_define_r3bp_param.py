@@ -75,8 +75,14 @@ def get_cr3bp_param(m1_naifID, m2_naifID):
     # initialize empty parameter object
     paramCR3BP = Parameters()
     # list of semi-major axis
-    semiMajorAxes = sscs.get_semiMajorAxes(m1_naifID, m2_naifID)
-    a1, a2 = semiMajorAxes[0], semiMajorAxes[1]
+    if m1_naifID =='10':
+        a2 = sscs.get_semiMajorAxes(m2_naifID)[0]
+    elif m2_naifID =='10':
+        a2 = sscs.get_semiMajorAxes(m1_naifID)[0]
+    else:
+        semiMajorAxes = sscs.get_semiMajorAxes(m1_naifID, m2_naifID)
+        a1, a2 = semiMajorAxes[0], semiMajorAxes[1]
+
     # list of gm
     gmlst = sscs.get_gm(m1_naifID, m2_naifID)
     m1_gm, m2_gm = gmlst[0], gmlst[1]

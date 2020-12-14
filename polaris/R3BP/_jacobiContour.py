@@ -12,61 +12,49 @@ from ._lagrangePoints import lagrangePoints
 from ._define_r3bp_param import get_cr3bp_mu
 
 
-def get_jacobi_contour(naifID1, naifID2):
+def get_jacobi_contour(naifID1, naifID2, cmin=2, cmax=4, cstep=0.05, scale=1, grid=1000, cmap='viridis'):
+    """Function creates a plot of Jacobi contour (zero-velocity curve contour)"""
+    # non-dimensionalise masses
+    mu = get_cr3bp_mu(naifID1, naifID2)
+    m1 = 1 - mu
+    m2 = mu
 
-	# non-dimensionalise masses
-	mu = get_cr3bp_mu(naifID1, naifID2)
-	m1 = 1 - mu
-	m2 = mu
+    # Lagrange points
+    lp = lagrangePoints(mu)
 
-	# Lagrange points
-	lp = lagrangePoints(mu)
+    # create mesh-grid in x-y plane
+    x = np.linspace(-1.5, 1.5, grid)
+    y = np.linspace(-1.5, 1.5, grid)
+    z = 0
+    [X,Y] = np.meshgrid(x,y)
 
-	# create mesh-grid in x-y plane
-	grid = 1000
-	x = np.linspace(-1.5,1.5,grid)
-	y = np.linspace(-1.5,1.5,grid)
-	z = 0
-	[X,Y] = np.meshgrid(x,y)
+    # compute potential
+    d1 = np.power((X + mu)**2 + Y**2 + z**2, 0.5)
+    d2 = np.power((X - 1 + mu)**2 + Y**2 + z**2, 0.5)
+    U = 0.5*(X**2 + Y**2)+(1 - mu)/d1 + mu/d2
 
-	# compute potential
-	d1 = np.power((X + mu)**2 + Y**2 + z**2, 0.5)
-	d2 = np.power((X - 1 + mu)**2 + Y**2 + z**2, 0.5)
-	U = 0.5*(X**2 + Y**2)+(1 - mu)/d1 + mu/d2
+    C = 2*U # 0-velocity Jacobi constant
 
-	C = 2*U # 0 velocity Jacobi constant
-
-	# define color scale
-	cc = [2:0.05:3.2, 2:0.2:6]  # requires fine-tuning (currently tuned for earth-moon)
-
-
-	## plot Jacobi contours with Lagrange points
-	plt.rcParams["font.size"] = 20
-	fig, ax = plt.subplots(1,1, figsize=(12,8))
-
-	ax.contour(X, Y, C, cc, cmap='RdGy')
-
-	# L1
-	# plot(lp(1,1),lp(1,2),'xr')
-	# text(lp(1,1),lp(1,2)-0.15,'L1','FontSize',16)
-	# # L2
-	# plot(lp(2,1),lp(2,2),'xr')
-	# text(lp(2,1),lp(2,2)-0.15,'L2','FontSize',16)
-	# # L3
-	# plot(lp(3,1),lp(3,2),'xr')
-	# text(lp(3,1),lp(3,2)-0.15,'L3','FontSize',16)
-	# # L4
-	# plot(lp(4,1),lp(4,2),'xr')
-	# text(lp(4,1),lp(4,2)-0.15,'L4','FontSize',16)
-	# # L5
-	# plot(lp(5,1),lp(5,2),'xr')
-	# text(lp(5,1),lp(5,2)-0.15,'L5','FontSize',16)
-	# title(['Jacobi constant contour for mu = ',num2str(mu)])
-
-	ax.set(xlabel='x, canonical', ylabel='y, canonical', title='ZVC')
-	plt.grid(True)
-	plt.axis("equal")
-	plt.show()
+    # define color scale
+    levels = np.arange(cmin, cmax, cstep)   # requires fine-tuning (currently tuned for earth-moon)
+    
+    ## plot Jacobi contours with Lagrange points
+    plt.rcParams["font.size"] = 20
+    fig, ax = plt.subplots(1,1, figsize=(15, 10))
+    im = ax.contour(X*scale, Y*scale, C, levels, cmap=cmap)
+    fig.colorbar(im)
+    ax.scatter(-mu*scale, 0.0, marker='+', s=200, c='b')
+    ax.scatter((1-mu)*scale, 0.0, marker='+', s=200, c='k')
+    ax.set(xlabel='x', ylabel='y', title='Zero-velocity contour')
+    ax.scatter(lp.l1[0]*scale, lp.l1[1]*scale, marker='x', s=120, c='r')
+    ax.scatter(lp.l2[0]*scale, lp.l2[1]*scale, marker='x', s=120, c='r')
+    ax.scatter(lp.l3[0]*scale, lp.l3[1]*scale, marker='x', s=120, c='r')
+    ax.scatter(lp.l4[0]*scale, lp.l4[1]*scale, marker='x', s=120, c='r')
+    ax.scatter(lp.l5[0]*scale, lp.l5[1]*scale, marker='x', s=120, c='r')
+    plt.grid(True)
+    plt.axis("equal")
+    plt.show()
+    pass
 
 
 if __name__ == "__main__":

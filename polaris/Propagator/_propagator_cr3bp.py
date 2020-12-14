@@ -8,18 +8,18 @@ import scipy.linalg as la
 from scipy.integrate import odeint, solve_ivp
 from numba import jit
 
-from ._rhs_functions import rhs_cr3bp, rhs_cr3bp_with_STM
+from ._rhs_functions import rhs_cr3bp, rhs_cr3bp_with_STM, rhs_cr3bp_planar, rhs_cr3bp_planar_with_STM
 
 
 # ---------------------------------------------------------------------------------------- #
 def propagate_cr3bp(mu, state0, tf, steps=200, t0=0.0, stm_option=False, events=None, ivp_method='LSODA', ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=False, switch2solveivp=True, message=False):
-    """Propagator function for CR3BP. 
+    """Propagator function for CR3BP, either in 2D or 3D. 
     The function calls either scipy.integrate.odeint() or scipy.integrate.solve_ivp()
     odeint() is used if method is 'LSODA' and events=None or force_solve_ivp=False
 
     Args:
         mu (float): cr3bp parameter
-        state0 (numpy array): numpy array containing cartesian state
+        state0 (numpy array): numpy array containing cartesian state, length 6 for 3D case or length 4 for planar case
         tf (float): final time of integration
         steps (float): number of steps to extract points (default is 200)
         t0 (float): initial time
@@ -56,70 +56,132 @@ def propagate_cr3bp_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False,
     time_array = np.linspace(t0, tf, steps)
 
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
-    if stm_option==False:    
-        # propagate state
-        sol, infodict = odeint(func=rhs_cr3bp, y0=state0, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
-        
-        # unpack cartesian state and time
-        times  = time_array       # time
-        x_arr  = sol[:,0]
-        y_arr  = sol[:,1]
-        z_arr  = sol[:,2]
-        vx_arr = sol[:,3]
-        vy_arr = sol[:,4]
-        vz_arr = sol[:,5]
-        # stmmat is not returned (just a place-holder)
-        stmmat = np.zeros((1,))
+    if stm_option==False:
+        # 3D propagation
+        if len(state0)==6:
+            # 3D propagation
+            sol, infodict = odeint(func=rhs_cr3bp, y0=state0, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+            # unpack cartesian state and time
+            times  = time_array       # time
+            x_arr  = sol[:,0]
+            y_arr  = sol[:,1]
+            z_arr  = sol[:,2]
+            vx_arr = sol[:,3]
+            vy_arr = sol[:,4]
+            vz_arr = sol[:,5]
+            # stmmat is not returned (just a place-holder)
+            stmmat = np.zeros((1,))
+
+        # planar propagation
+        elif len(state0)==4:
+            # 2D propagation
+            sol, infodict = odeint(func=rhs_cr3bp_planar, y0=state0, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+            # unpack cartesian state and time
+            times  = time_array       # time
+            x_arr  = sol[:,0]
+            y_arr  = sol[:,1]
+            vx_arr = sol[:,2]
+            vy_arr = sol[:,3]
+            # stmmat is not returned (just a place-holder)
+            stmmat = np.zeros((1,))
+        else:
+            raise Exception("State must be of length 4 (2D case) or 6 (3D case)")
 
     # if initial STM is provided, also propagate STM (i.e. integrate 6+36=42 differential equations)
     else:
-        # extend state to include STM
-        state0ext = np.zeros((42,))
-        # store cartesian state
-        state0ext[:6] = state0
-        # store initial identity stm into extended state vector
-        state0ext[5+1]  = 1
-        state0ext[5+8]  = 1
-        state0ext[5+15] = 1
-        state0ext[5+22] = 1
-        state0ext[5+29] = 1
-        state0ext[5+36] = 1
-        # propagate state and stm
-        sol, infodict = odeint(func=rhs_cr3bp_with_STM, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+        # 3D propagation
+        if len(state0)==6:
+            # extend state to include STM
+            state0ext = np.zeros((42,))
+            # store cartesian state
+            state0ext[:6] = state0
+            # store initial identity stm into extended state vector
+            state0ext[5+1]  = 1
+            state0ext[5+8]  = 1
+            state0ext[5+15] = 1
+            state0ext[5+22] = 1
+            state0ext[5+29] = 1
+            state0ext[5+36] = 1
+            # propagate state and stm
+            sol, infodict = odeint(func=rhs_cr3bp_with_STM, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+            # unpack cartesian state and time
+            times = time_array       # time
+            x_arr  = sol[:,0]
+            y_arr  = sol[:,1]
+            z_arr  = sol[:,2]
+            vx_arr = sol[:,3]
+            vy_arr = sol[:,4]
+            vz_arr = sol[:,5]
+            # unpack STM
+            stmmat = sol[:,6:].T
 
-        # unpack cartesian state and time
-        times = time_array       # time
-        x_arr  = sol[:,0]
-        y_arr  = sol[:,1]
-        z_arr  = sol[:,2]
-        vx_arr = sol[:,3]
-        vy_arr = sol[:,4]
-        vz_arr = sol[:,5]
+        # planar propagation
+        elif len(state0)==4:    # TODO: need pure impementation...
+            # extend state to include STM
+            state0ext = np.zeros((42,))
+            state0_modified = np.array([state0[0], state0[1], 0.0, state0[2], state0[3], 0.0])
+            # store cartesian state
+            state0ext[:6] = state0_modified
+            # store initial identity stm into extended state vector
+            state0ext[5+1]  = 1
+            state0ext[5+8]  = 1
+            state0ext[5+15] = 1
+            state0ext[5+22] = 1
+            state0ext[5+29] = 1
+            state0ext[5+36] = 1
+            # propagate state and stm
+            sol, infodict = odeint(func=rhs_cr3bp_with_STM, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+            # unpack cartesian state and time
+            times = time_array       # time
+            x_arr  = sol[:,0]
+            y_arr  = sol[:,1]
+            vx_arr = sol[:,3]
+            vy_arr = sol[:,4]
+            # unpack STM
+            stmmat = sol[:,6:].T   # MUST FIX!
+        else:
+            raise Exception("State must be of length 4 (2D case) or 6 (3D case)")
 
-        # unpack STM
-        stmmat = sol[:,6:].T
-    
     # create numpy array of state at final time of propagation
-    statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
-    # evaluate rhs based on final state
-    dstatef = rhs_cr3bp(times[-1], statef, mu)
+    if len(state0)==6:
+        statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
+        # evaluate rhs based on final state
+        dstatef = rhs_cr3bp(times[-1], statef, mu)
+        # prepare output dictionary
+        out = {
+            "times": times,
+            "xs": x_arr,
+            "ys": y_arr,
+            "zs": z_arr,
+            "vxs": vx_arr,
+            "vys": vy_arr,
+            "vzs": vz_arr,
+            "statef": statef,
+            "stms":stmmat,
+            "dstatef":dstatef,
+            "eventStates": [],
+            "eventTimes": []
+        }
 
-    # prepare output dictionary
-    out = {
-        "times": times,
-        "xs": x_arr,
-        "ys": y_arr,
-        "zs": z_arr,
-        "vxs": vx_arr,
-        "vys": vy_arr,
-        "vzs": vz_arr,
-        "statef": statef, 
-        "stms":stmmat, 
-        "dstatef":dstatef, 
-        "eventStates": [], 
-        "eventTimes": []
-    }
+    elif len(state0)==4:
+        statef = np.array([x_arr[-1], y_arr[-1], vx_arr[-1], vy_arr[-1]])
+        # evaluate rhs based on final state
+        dstatef = rhs_cr3bp_planar(times[-1], statef, mu)
+        # prepare output dictionary
+        out = {
+            "times": times,
+            "xs": x_arr,
+            "ys": y_arr,
+            "vxs": vx_arr,
+            "vys": vy_arr,
+            "statef": statef,
+            "stms":stmmat,
+            "dstatef":dstatef,
+            "eventStates": [],
+            "eventTimes": []
+        }
     return out, infodict
+
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -129,50 +191,91 @@ def propagate_cr3bp_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fals
     time_array = np.linspace(t0, tf, steps)
 
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
-    if stm_option==False:    
-        # propagate state
-        sol = solve_ivp(fun=rhs_cr3bp, t_span=(0,tf), y0=state0, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
-        # unpack cartesian state and time
-        times = sol.t       # time
-        x_arr  = sol.y[0]
-        y_arr  = sol.y[1]
-        z_arr  = sol.y[2]
-        vx_arr = sol.y[3]
-        vy_arr = sol.y[4]
-        vz_arr = sol.y[5]
-        # stmmat is not returned (just a place-holder)
-        stmmat = np.zeros((1,))
+    if stm_option==False:
+        # 3D propagation
+        if len(state0)==6:
+            # propagate state
+            sol = solve_ivp(fun=rhs_cr3bp, t_span=(0,tf), y0=state0, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+            # unpack cartesian state and time
+            times = sol.t       # time
+            x_arr  = sol.y[0]
+            y_arr  = sol.y[1]
+            z_arr  = sol.y[2]
+            vx_arr = sol.y[3]
+            vy_arr = sol.y[4]
+            vz_arr = sol.y[5]
+            # stmmat is not returned (just a place-holder)
+            stmmat = np.zeros((1,))
+
+        # planar propagation
+        elif len(state0)==4:
+            # propagate state
+            sol = solve_ivp(fun=rhs_cr3bp_planar, t_span=(0,tf), y0=state0, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+            # unpack cartesian state and time
+            times = sol.t       # time
+            x_arr  = sol.y[0]
+            y_arr  = sol.y[1]
+            vx_arr = sol.y[3]
+            vy_arr = sol.y[4]
+            # stmmat is not returned (just a place-holder)
+            stmmat = np.zeros((1,))
+        else:
+            raise Exception("State must be of length 4 (2D case) or 6 (3D case)")
 
     # if initial STM is provided, also propagate STM (i.e. integrate 6+36=42 differential equations)
     else:
-        # extend state to include STM
-        state0ext = np.zeros((42,))
-        # store cartesian state
-        state0ext[:6] = state0
-        # store initial identity stm into extended state vector
-        state0ext[5+1]  = 1
-        state0ext[5+8]  = 1
-        state0ext[5+15] = 1
-        state0ext[5+22] = 1
-        state0ext[5+29] = 1
-        state0ext[5+36] = 1
-        # propagate state and stm
-        sol = solve_ivp(fun=rhs_cr3bp_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
-        # unpack cartesian state an#d time
-        times = sol.t       # time
-        x_arr  = sol.y[0]
-        y_arr  = sol.y[1]
-        z_arr  = sol.y[2]
-        vx_arr = sol.y[3]
-        vy_arr = sol.y[4]
-        vz_arr = sol.y[5]
-        # unpack STM
-        stmmat = sol.y[6:,:]
-    
-    # create numpy array of state at final time of propagation
-    statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
-    # evaluate rhs based on final state
-    dstatef = rhs_cr3bp(times[-1], statef, mu)
+        # 3D propagation
+        if len(state0)==6:
+            # extend state to include STM
+            state0ext = np.zeros((42,))
+            # store cartesian state
+            state0ext[:6] = state0
+            # store initial identity stm into extended state vector
+            state0ext[5+1]  = 1
+            state0ext[5+8]  = 1
+            state0ext[5+15] = 1
+            state0ext[5+22] = 1
+            state0ext[5+29] = 1
+            state0ext[5+36] = 1
+            # propagate state and stm
+            sol = solve_ivp(fun=rhs_cr3bp_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+            # unpack cartesian state an#d time
+            times = sol.t       # time
+            x_arr  = sol.y[0]
+            y_arr  = sol.y[1]
+            z_arr  = sol.y[2]
+            vx_arr = sol.y[3]
+            vy_arr = sol.y[4]
+            vz_arr = sol.y[5]
+            # unpack STM
+            stmmat = sol.y[6:,:]
+
+        # planar propagation
+        elif len(state0)==4:      # TODO: need pure impementation...
+            # extend state to include STM
+            state0ext = np.zeros((42,))
+            state0_modified = np.array([state0[0], state0[1], 0.0, state0[2], state0[3], 0.0])
+            # store cartesian state
+            state0ext[:6] = state0_modified
+            # store initial identity stm into extended state vector
+            state0ext[5+1]  = 1
+            state0ext[5+8]  = 1
+            state0ext[5+15] = 1
+            state0ext[5+22] = 1
+            state0ext[5+29] = 1
+            state0ext[5+36] = 1
+            # propagate state and stm
+            sol = solve_ivp(fun=rhs_cr3bp_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+            # unpack cartesian state an#d time
+            times = sol.t       # time
+            x_arr  = sol.y[0]
+            y_arr  = sol.y[1]
+            vx_arr = sol.y[3]
+            vy_arr = sol.y[4]
+            # unpack STM
+            stmmat = sol.y[6:,:]
+        else:
+            raise Exception("State must be of length 4 (2D case) or 6 (3D case)")
 
     # return events
     if events is None:
@@ -182,21 +285,42 @@ def propagate_cr3bp_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fals
         eventStates = sol.y_events
         eventTimes = sol.t_events
 
-    # prepare output dictionary
-    out = {
-        "times": times,
-        "xs": x_arr,
-        "ys": y_arr,
-        "zs": z_arr,
-        "vxs": vx_arr,
-        "vys": vy_arr,
-        "vzs": vz_arr,
-        "statef": statef, 
-        "stms":stmmat, 
-        "dstatef":dstatef, 
-        "eventStates":eventStates, 
-        "eventTimes":eventTimes
-    }
+    # create numpy array of state at final time of propagation
+    if len(state0)==6:
+        statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
+        # evaluate rhs based on final state
+        dstatef = rhs_cr3bp(times[-1], statef, mu)
+        # prepare output dictionary
+        out = {
+            "times": times,
+            "xs": x_arr,
+            "ys": y_arr,
+            "zs": z_arr,
+            "vxs": vx_arr,
+            "vys": vy_arr,
+            "vzs": vz_arr,
+            "statef": statef,
+            "stms":stmmat,
+            "dstatef":dstatef,
+            "eventStates": [],
+            "eventTimes": []
+        }
+
+    elif len(state0)==4:
+        statef = np.array([x_arr[-1], y_arr[-1], vx_arr[-1], vy_arr[-1]])
+        # evaluate rhs based on final state
+        dstatef = rhs_cr3bp_planar(times[-1], statef, mu)
+        # prepare output dictionary
+        out = {
+            "times": times,
+            "xs": x_arr,
+            "ys": y_arr,
+            "vxs": vx_arr,
+            "vys": vy_arr,
+            "statef": statef,
+            "stms":stmmat,
+            "dstatef":dstatef,
+            "eventStates": [],
+            "eventTimes": []
+        }
     return out
-
-

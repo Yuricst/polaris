@@ -88,7 +88,7 @@ def compute_legendre_coeff(c2,c3,c4,lmb,k):
 # -------------------------------------------------------------------------------------------------------- #
 def get_halo_approx(mu, lp, lstar, az_km, family=1, phase=0.0):
     """Function returns approximate state and period of collinear halo in 3rd-order approximation
-
+    
     Args:
         mu (float): CR3BP system parameter
         lp (int): lagrange point about which to construct halo; 1, 2, or 3
