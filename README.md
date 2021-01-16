@@ -30,3 +30,4 @@ import polaris.Propagator as prop
 ```
 
 For examples, go to ```./examples/``` to see Jupyter notebook tutorials. 
+The full documentation is available at https://github.com/Yuricst/polaris/wiki. 
