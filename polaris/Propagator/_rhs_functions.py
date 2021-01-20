@@ -77,7 +77,7 @@ def rhs_cr3bp(t,state,mu):
 # ------------------------------------------------------------------------------------------------ #
 # define RHS function in CR3BP, in 2D
 @jit(nopython=True)
-def rhs_cr3bp_planar(t,state,mu):
+def rhs_pcr3bp(t,state,mu):
     """Equation of motion in planar CR3BP, formulated for scipy.integrate.solve=ivp(), compatible with njit
     
     Args:
@@ -239,7 +239,7 @@ def rhs_cr3bp_with_STM(t,state,mu):
 # ---------------------------------------------------------------------------------------------------- #
 # deifne RHS function in planar CR3BP including its state-transition-matrix (Numba compatible)
 @jit(nopython=True)
-def rhs_cr3bp_planar_with_STM(t,state,mu):
+def rhs_pcr3bp_with_STM(t,state,mu):
     """Equation of motion in planar CR3BP along with its STM, compatible with njit
         
     Args:

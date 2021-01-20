@@ -86,7 +86,7 @@ def compute_legendre_coeff(c2,c3,c4,lmb,k):
 
 
 # -------------------------------------------------------------------------------------------------------- #
-def get_halo_approx(mu, lp, lstar, az_km, family=1, phase=0.0):
+def get_halo_approx(mu, lp, lstar, az_km, family=1, phase=0.0, message=False):
     """Function returns approximate state and period of collinear halo in 3rd-order approximation
     
     Args:
@@ -96,6 +96,7 @@ def get_halo_approx(mu, lp, lstar, az_km, family=1, phase=0.0):
         az_km (float): max z-direction amplitude, in km
         family (int): North or South family (1 or 3); whether the resulting trajectory is North or South depends on lp
         phase (float): phase of trajectory to construct the initial guess state; use 0 or pi in order to correct the initial guess to numerical periodic solution later
+        message (bool): whether to display messages
 
     Returns:
         (dict): dictionary containing initial guess solution of the state and the period, as well as the 3rd order periodic motion's states over one full period; keys are:
@@ -120,7 +121,8 @@ def get_halo_approx(mu, lp, lstar, az_km, family=1, phase=0.0):
     c3 = compute_legendre_const(3,mu,gammaL,lp)
     c4 = compute_legendre_const(4,mu,gammaL,lp)
 
-    print(f'gammaL: {gammaL}, c2:{c2}, c3:{c3}, c4: {c4}')
+    if message==True:
+        print(f'gammaL: {gammaL}, c2:{c2}, c3:{c3}, c4: {c4}')
 
     # compute linear cr3bp motion angular speed lambda
     lmb = linear_cr3bp_lambda(c2)
@@ -138,14 +140,16 @@ def get_halo_approx(mu, lp, lstar, az_km, family=1, phase=0.0):
     Az = az_km/(lstar*gammaL)
     Ax = np.sqrt((- Delta - l2*Az**2)/l1)
     Ay = k*Ax
-    print(f'Ax = {Ax*lstar*gammaL:.2f} [km], Ay = {Ay*lstar*gammaL:.2f} [km], Az = {Az*lstar*gammaL:.2f} [km]')
+    if message==True:
+        print(f'Ax = {Ax*lstar*gammaL:.2f} [km], Ay = {Ay*lstar*gammaL:.2f} [km], Az = {Az*lstar*gammaL:.2f} [km]')
 
     # halo orbit (analytical) period
     omega1 = 0
     omega2 = s1*(Ax)**2 + s2*(Az)**2
     omega = 1 + omega1 + omega2
     period_richard = 2*np.pi/(lmb*omega)  # -- non-dimensionalized by 1/Tstar
-    print(f'Analytical period = {period_richard:.8f} (non-dim)')
+    if message==True:
+        print(f'Analytical period = {period_richard:.8f} (non-dim)')
 
     # third-order time array
     times = omega * np.linspace(0,period_richard,500)  # time variable for 3rd order solution
