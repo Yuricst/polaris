@@ -9,6 +9,29 @@ from numba import jit
 import numpy.linalg as la
 
 
+# rotational matrices
+@jit(nopython=True)
+def rotmat_ax1(theta):
+    """Rotation matrix about first axis"""
+    return np.array([ [ 1.0, 0.0,            0.0 ], 
+                      [ 0.0, np.cos(theta), -np.sin(theta) ], 
+                      [ 0.0, np.sin(theta),  np.cos(theta) ] ])
+
+@jit(nopython=True)
+def rotmat_ax2(theta):
+    """Rotation matrix about first axis"""
+    return np.array([ [  np.cos(theta), 0.0, np.sin(theta) ], 
+                      [  0.0,           1.0, 0.0           ], 
+                      [ -np.sin(theta), 0.0, np.cos(theta) ] ])
+
+@jit(nopython=True)
+def rotmat_ax3(theta):
+    """Rotation matrix about third axis"""
+    return np.array([ [ np.cos(theta), -np.sin(theta), 0.0 ],
+                      [ np.sin(theta),  np.cos(theta), 0.0 ], 
+                      [ 0.0,            0.0,           1.0 ] ])
+
+
 # convert state from dimensional to canonical
 @jit(nopython=True)
 def dim2nondim(state, lstar, tstar):

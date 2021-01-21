@@ -12,7 +12,7 @@ from ._rhs_functions import rhs_bcr4bp, rhs_bcr4bp_with_STM
 
 
 # ---------------------------------------------------------------------------------------- #
-def propagate_bcr4bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, events=None, ivp_method='LSODA', ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=False, switch2solveivp=True, message=False):
+def propagate_bcr4bp(mu, state0, tf, mu_sun, a_sun, om_sun, beta0, steps=2000, t0=0.0, stm_option=False, events=None, ivp_method='LSODA', ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=False, switch2solveivp=True, message=False):
     """Propagator function for bcr4bp. 
     The function calls either scipy.integrate.odeint() or scipy.integrate.solve_ivp()
     odeint() is used if method is 'LSODA' and events=None or force_solve_ivp=False
@@ -21,6 +21,8 @@ def propagate_bcr4bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, event
         mu (float): bcr4bp parameter
         state0 (numpy array): numpy array containing cartesian state
         tf (float): final time of integration
+        mu_sun
+
         steps (float): number of steps to extract points (default is 2000)
         t0 (float): initial time
         stm_option (bool): choice whether to also propagate STM (defualt is False)
@@ -37,20 +39,20 @@ def propagate_bcr4bp(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, event
     # decides whether to use solve_ivp or odeint
     if events==None and ivp_method=='LSODA' and force_solve_ivp==False:
         # use odeint
-        propout, infodict = propagate_bcr4bp_odeint(mu, state0, tf, steps=steps, t0=t0, stm_option=stm_option, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
+        propout, infodict = propagate_bcr4bp_odeint(mu, state0, tf, mu_sun, a_sun, om_sun, beta0, steps=steps, t0=t0, stm_option=stm_option, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
         # check if integration is successfully done
         if infodict['message']!='Integration successful.' and switch2solveivp==True:
             if message==True:
                 print('Failed with odeint(); switching to solve_ivp() for integration')
-            propout = propagate_bcr4bp_solve_ivp(mu, state0, tf, steps=steps, t0=t0, stm_option=stm_option, events=events, ivp_method=ivp_method, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
+            propout = propagate_bcr4bp_solve_ivp(mu, state0, tf, mu_sun, a_sun, om_sun, beta0, steps=steps, t0=t0, stm_option=stm_option, events=events, ivp_method=ivp_method, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
     else:
         # use solve_ivp
-        propout = propagate_bcr4bp_solve_ivp(mu, state0, tf, steps=steps, t0=t0, stm_option=stm_option, events=events, ivp_method=ivp_method, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
+        propout = propagate_bcr4bp_solve_ivp(mu, state0, tf, mu_sun, a_sun, om_sun, beta0, steps=steps, t0=t0, stm_option=stm_option, events=events, ivp_method=ivp_method, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol)
     return propout
 
 
 # ---------------------------------------------------------------------------------------- #
-def propagate_bcr4bp_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, ivp_rtol=1e-12, ivp_atol=1e-12):
+def propagate_bcr4bp_odeint(mu, state0, tf, mu_sun, a_sun, om_sun, beta0, steps=2000, t0=0.0, stm_option=False, ivp_rtol=1e-12, ivp_atol=1e-12):
     """Propagator for bcr4bp using odeint()"""
     # construct time-array where state will be returned
     time_array = np.linspace(t0, tf, steps)
@@ -58,7 +60,7 @@ def propagate_bcr4bp_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
     if stm_option==False:    
         # propagate state
-        sol, infodict = odeint(func=rhs_bcr4bp, y0=state0, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+        sol, infodict = odeint(func=rhs_bcr4bp, y0=state0, t=time_array, args=(mu, mu_sun, a_sun, beta0, om_sun, 1.0), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
         
         # unpack cartesian state and time
         times  = time_array       # time
@@ -85,7 +87,7 @@ def propagate_bcr4bp_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False
         state0ext[5+29] = 1
         state0ext[5+36] = 1
         # propagate state and stm
-        sol, infodict = odeint(func=rhs_bcr4bp_with_STM, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+        sol, infodict = odeint(func=rhs_bcr4bp_with_STM, y0=state0ext, t=time_array, args=(mu, mu_sun, a_sun, beta0, om_sun, 1.0), Dfun=None, col_deriv=0, full_output=1, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
 
         # unpack cartesian state and time
         times = time_array       # time
@@ -102,7 +104,7 @@ def propagate_bcr4bp_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False
     # create numpy array of state at final time of propagation
     statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
     # evaluate rhs based on final state
-    dstatef = rhs_bcr4bp(times[-1], statef, mu)
+    dstatef = rhs_bcr4bp(times[-1], statef, mu, mu_sun, a_sun, beta0, om_sun, 1.0)
 
     # prepare output dictionary
     out = {
@@ -123,7 +125,7 @@ def propagate_bcr4bp_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False
 
 
 # ---------------------------------------------------------------------------------------- #
-def propagate_bcr4bp_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=False, events=None, ivp_method="LSODA", ivp_rtol=1e-12, ivp_atol=1e-12):
+def propagate_bcr4bp_solve_ivp(mu, state0, tf, mu_sun, a_sun, om_sun, beta0, steps=2000,t0=0.0, stm_option=False, events=None, ivp_method="LSODA", ivp_rtol=1e-12, ivp_atol=1e-12):
     """Propagator for bcr4bp using solve_ivp()"""
     # construct time-array where state will be returned
     time_array = np.linspace(t0, tf, steps)
@@ -131,7 +133,7 @@ def propagate_bcr4bp_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fal
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
     if stm_option==False:    
         # propagate state
-        sol = solve_ivp(fun=rhs_bcr4bp, t_span=(0,tf), y0=state0, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+        sol = solve_ivp(fun=rhs_bcr4bp, t_span=(0,tf), y0=state0, events=events, t_eval=time_array, args=(mu, mu_sun, a_sun, beta0, om_sun, 1.0), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
         # unpack cartesian state and time
         times = sol.t       # time
         x_arr  = sol.y[0]
@@ -157,7 +159,7 @@ def propagate_bcr4bp_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fal
         state0ext[5+29] = 1
         state0ext[5+36] = 1
         # propagate state and stm
-        sol = solve_ivp(fun=rhs_bcr4bp_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+        sol = solve_ivp(fun=rhs_bcr4bp_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu, mu_sun, a_sun, beta0, om_sun, 1.0), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
         # unpack cartesian state an#d time
         times = sol.t       # time
         x_arr  = sol.y[0]
@@ -172,7 +174,7 @@ def propagate_bcr4bp_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fal
     # create numpy array of state at final time of propagation
     statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
     # evaluate rhs based on final state
-    dstatef = rhs_bcr4bp(times[-1], statef, mu)
+    dstatef = rhs_bcr4bp(times[-1], statef, mu, mu_sun, a_sun, beta0, om_sun, 1.0)
 
     # return events
     if events is None:

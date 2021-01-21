@@ -117,9 +117,9 @@ def get_bcr4bp_param(m1_naifID, m2_naifID):
     paramCR3BP = get_cr3bp_param(m1_naifID, m2_naifID)
 
     # get information of Sun
-    gm_sun     = sscs.get_gm("10")
-    a_m1_sun   = sscs.get_semiMajorAxes(m1_naifID) # semi-major axis of first (larger) body
-    period_sun = 2*np.pi*np.sqrt(a_m1_sun**3/gm)   # [sec]
+    gm_sun     = sscs.get_gm("10")[0]
+    a_m1_sun   = sscs.get_semiMajorAxes(m1_naifID)[0]   # semi-major axis of first (larger) body
+    period_sun = 2*np.pi*np.sqrt(a_m1_sun**3/gm_sun)   # [sec]
 
     # compute rotation rate of sun about m1-m2 barycenter
     tsyn   = kepl.get_synodic_period(period_sun, paramCR3BP.tstar)  # [sec]

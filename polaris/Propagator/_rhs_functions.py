@@ -366,7 +366,7 @@ def rhs_pcr3bp_with_STM(t,state,mu):
 # ------------------------------------------------------------------------------------------------ #
 # right-hand side function in BCR4BP, centered at planet-moon barycenter
 @jit(nopython=True)
-def rhs_bcr4bp_planetmoon(t, state, mu, mu3, a, t0, omega_s, eps):
+def rhs_bcr4bp(t, state, mu, mu3, a, t0, omega_s, eps):
     """Equation of motion in BCR4BP, centered around planet-moon barycenter
 
     Args:
@@ -419,7 +419,7 @@ def rhs_bcr4bp_planetmoon(t, state, mu, mu3, a, t0, omega_s, eps):
 # ------------------------------------------------------------------------------------------------ #
 # right-hand side function in BCR4BP with STM, centered at cenetred at planet-moon barycenter
 @jit(nopython=True)
-def rhs_bcr4bp_planetmoon_with_STM(t, state, mu, mu3, a, t0, omega_s, eps):
+def rhs_bcr4bp_with_STM(t, state, mu, mu3, a, t0, omega_s, eps):
     """Equation of motion in BCR4BP along with its STM, compatible with njit
         
     Args:
