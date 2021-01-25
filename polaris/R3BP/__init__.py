@@ -27,3 +27,8 @@ from ._jacobiContour import get_jacobi_contour
 
 # circularization cost
 from ._circularize_cost import get_loi_cost_inertial, get_loicost
+
+
+# function for triangular libration points
+from ._approxTriangularLibPoints import get_linearmotion_ic
+
