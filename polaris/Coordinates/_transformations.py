@@ -250,4 +250,66 @@ def transform_SEcr3bp_to_EMcr3bp(beta, t_SE, state_SE, mu_EM, mu_SE, Lstar_EM, T
     return state_EM
 
 
+# ------------------------------------------------------------------------------- #
+# function to convert propagation output from rotating to inertial
+def convert_propout_rotating2inertial(propout, theta0, mu, mass_center=1):
+    """Converts propagation output from rotating to inertial, centered around mass 1 or mass 2
+    
+    Args:
+        propout (dict): propagation output from prop.propagate_xx functions
+        theta0 (float): initial phase angle, added to the time array entries, in radians
+        mu (float): CR3BP mass parameter
+        mass_center (int): location of center, either mass 1 or mass 2 (1 or 2)
 
+    Returns:
+        (dict): dictionary of transformed propagation output
+    """
+    # call function to convert
+    x_tmp, y_tmp, z_tmp, vx_tmp, vy_tmp, vz_tmp = _convertsays_rotating2inertial(propout["xs"], propout["ys"], propout["zs"], 
+                                propout["vxs"], propout["vys"], propout["vzs"], propout["times"], mu, theta0, mass_center)
+    # initial state
+    statef0  = np.array([ x_tmp[0] , y_tmp[0] , z_tmp[0] , 
+                           vx_tmp[0] , vy_tmp[0] , vz_tmp[0] ])
+    # final state
+    statef_i = np.array([ x_tmp[-1] , y_tmp[-1] , z_tmp[-1] , 
+                           vx_tmp[-1] , vy_tmp[-1] , vz_tmp[-1] ])
+    # construct output dictionary 
+    propout_i = {"xs": x_tmp, "ys": y_tmp, "zs": z_tmp, 
+                  "vxs": vx_tmp, "vys": vy_tmp, "vzs": vz_tmp,
+                  "times": propout["times"], 'state0': state0, 'statef': statef_i}
+
+    return propout_i
+
+
+@jit(nopython=True) 
+def _convertsays_rotating2inertial(xs, ys, zs, vxs, vys, vzs, times, mu, theta0, mass_center):
+    """Conversion from rotating to inertial frame wrapped with jit decorator"""
+    # initialize array
+    x_tmp  = np.zeros((len(times),))
+    y_tmp  = np.zeros((len(times),))
+    z_tmp  = np.zeros((len(times),))
+    vx_tmp = np.zeros((len(times),))
+    vy_tmp = np.zeros((len(times),))
+    vz_tmp = np.zeros((len(times),))
+    # iterate over each element
+    for idx in range(len(times)):
+        # state in rotating frame, centered at the body
+        if mass_center==1:
+            state_rot = np.array([ xs[idx] + mu, ys[idx], 
+                                   zs[idx],      vxs[idx], 
+                                   vys[idx],     vzs[idx] ])
+        else:
+            state_rot = np.array([ xs[idx] - (1 - mu), ys[idx],     # FIXME --- should be (1-mu)??? changed from (1+mu) on 2021/01/05 
+                                   zs[idx],            vxs[idx], 
+                                   vys[idx],           vzs[idx] ])
+        theta_rot = times[idx] + theta0
+        # convert state
+        state_i = rotating2inertial(state_rot, theta_rot)
+        # store position and velocity
+        x_tmp[idx]  = state_i[0]
+        y_tmp[idx]  = state_i[1]
+        z_tmp[idx]  = state_i[2]
+        vx_tmp[idx] = state_i[3]
+        vy_tmp[idx] = state_i[4]
+        vz_tmp[idx] = state_i[5]
+    return x_tmp, y_tmp, z_tmp, vx_tmp, vy_tmp, vz_tmp
