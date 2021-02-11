@@ -268,7 +268,7 @@ def convert_propout_rotating2inertial(propout, theta0, mu, mass_center=1):
     x_tmp, y_tmp, z_tmp, vx_tmp, vy_tmp, vz_tmp = _convertsays_rotating2inertial(propout["xs"], propout["ys"], propout["zs"], 
                                 propout["vxs"], propout["vys"], propout["vzs"], propout["times"], mu, theta0, mass_center)
     # initial state
-    statef0  = np.array([ x_tmp[0] , y_tmp[0] , z_tmp[0] , 
+    state0   = np.array([ x_tmp[0] , y_tmp[0] , z_tmp[0] , 
                            vx_tmp[0] , vy_tmp[0] , vz_tmp[0] ])
     # final state
     statef_i = np.array([ x_tmp[-1] , y_tmp[-1] , z_tmp[-1] , 
