@@ -34,6 +34,86 @@ def rhs_twobody(t,state,gm):
     return dstate
 
 
+# ------------------------------------------------------------------------------------------------ #
+# define RHS function with STMin two body problem
+@jit(nopython=True)
+def twobody_with_STM(t, state, mu):
+    r = np.sqrt(state[0]**2 + state[1]**2 + state[2]**2)
+    dstate = np.zeros((42,))
+    # positions
+    dstate[0] = state[3]
+    dstate[1] = state[4]
+    dstate[2] = state[5]
+    # velocities
+    dstate[3] = -(mu / r )*state[0]
+    dstate[4] = -(mu / r )*state[1]
+    dstate[5] = -(mu / r )*state[2]
+    # gravity gradient entries
+    g00 = -(mu/r**3) * ( -1  + 3*state[0]**2 / r**2 )
+    g01 = -(mu/r**3) * ( 3*state[0]*state[1] / r**2 )
+    g02 = -(mu/r**3) * ( 3*state[0]*state[2] / r**2 )
+    g11 = -(mu/r**3) * ( -1  + 3*state[1]**2 / r**2 )
+    g12 = -(mu/r**3) * ( 3*state[1]*state[2] / r**2 )
+    g22 = -(mu/r**3) * ( -1  + 3*state[2]**2 / r**2 )
+    # a-matrix entries
+    a00, a01, a02, a03, a04, a05 = 0.0, 0.0, 0.0, 1.0, 0.0, 0.0
+    a10, a11, a12, a13, a14, a15 = 0.0, 0.0, 0.0, 0.0, 1.0, 0.0
+    a20, a21, a22, a23, a24, a25 = 0.0, 0.0, 0.0, 0.0, 0.0, 1.0
+    a30, a31, a32, a33, a34, a35 = g00, g01, g02, 0.0, 0.0, 0.0
+    a40, a41, a42, a43, a44, a45 = g01, g11, g12, 0.0, 0.0, 0.0
+    a50, a51, a52, a53, a54, a55 = g02, g12, g22, 0.0, 0.0, 0.0
+    
+    # derivative of STM
+    # 1st row ... 
+    dstate[6]  = a00*state[6]  + a01*state[12] + a02*state[18] + a03*state[24] + a04*state[30] + a05*state[36] 
+    dstate[7]  = a00*state[7]  + a01*state[13] + a02*state[19] + a03*state[25] + a04*state[31] + a05*state[37] 
+    dstate[8]  = a00*state[8]  + a01*state[14] + a02*state[20] + a03*state[26] + a04*state[32] + a05*state[38] 
+    dstate[9]  = a00*state[9]  + a01*state[15] + a02*state[21] + a03*state[27] + a04*state[33] + a05*state[39] 
+    dstate[10] = a00*state[10] + a01*state[16] + a02*state[22] + a03*state[28] + a04*state[34] + a05*state[40] 
+    dstate[11] = a00*state[11] + a01*state[17] + a02*state[23] + a03*state[29] + a04*state[35] + a05*state[41] 
+
+    # 2nd row ...
+    dstate[12] = a10*state[6]  + a11*state[12] + a12*state[18] + a13*state[24] + a14*state[30] + a15*state[36]
+    dstate[13] = a10*state[7]  + a11*state[13] + a12*state[19] + a13*state[25] + a14*state[31] + a15*state[37] 
+    dstate[14] = a10*state[8]  + a11*state[14] + a12*state[20] + a13*state[26] + a14*state[32] + a15*state[38] 
+    dstate[15] = a10*state[9]  + a11*state[15] + a12*state[21] + a13*state[27] + a14*state[33] + a15*state[39] 
+    dstate[16] = a10*state[10] + a11*state[16] + a12*state[22] + a13*state[28] + a14*state[34] + a15*state[40] 
+    dstate[17] = a10*state[11] + a11*state[17] + a12*state[23] + a13*state[29] + a14*state[35] + a15*state[41] 
+
+    # 3rd row ...
+    dstate[18] = a20*state[6]  + a21*state[12] + a22*state[18] + a23*state[24] + a24*state[30] + a25*state[36]
+    dstate[19] = a20*state[7]  + a21*state[13] + a22*state[19] + a23*state[25] + a24*state[31] + a25*state[37] 
+    dstate[20] = a20*state[8]  + a21*state[14] + a22*state[20] + a23*state[26] + a24*state[32] + a25*state[38] 
+    dstate[21] = a20*state[9]  + a21*state[15] + a22*state[21] + a23*state[27] + a24*state[33] + a25*state[39] 
+    dstate[22] = a20*state[10] + a21*state[16] + a22*state[22] + a23*state[28] + a24*state[34] + a25*state[40] 
+    dstate[23] = a20*state[11] + a21*state[17] + a22*state[23] + a23*state[29] + a24*state[35] + a25*state[41]
+    
+    # 4th row ... 
+    dstate[6]  = a30*state[6]  + a31*state[12] + a32*state[18] + a33*state[24] + a34*state[30] + a35*state[36] 
+    dstate[7]  = a30*state[7]  + a31*state[13] + a32*state[19] + a33*state[25] + a34*state[31] + a35*state[37] 
+    dstate[8]  = a30*state[8]  + a31*state[14] + a32*state[20] + a33*state[26] + a34*state[32] + a35*state[38] 
+    dstate[9]  = a30*state[9]  + a31*state[15] + a32*state[21] + a33*state[27] + a34*state[33] + a35*state[39] 
+    dstate[10] = a30*state[10] + a31*state[16] + a32*state[22] + a33*state[28] + a34*state[34] + a35*state[40] 
+    dstate[11] = a30*state[11] + a31*state[17] + a32*state[23] + a33*state[29] + a34*state[35] + a35*state[41] 
+
+    # 5th row ...
+    dstate[12] = a40*state[6]  + a41*state[12] + a42*state[18] + a43*state[24] + a44*state[30] + a45*state[36]
+    dstate[13] = a40*state[7]  + a41*state[13] + a42*state[19] + a43*state[25] + a44*state[31] + a45*state[37] 
+    dstate[14] = a40*state[8]  + a41*state[14] + a42*state[20] + a43*state[26] + a44*state[32] + a45*state[38] 
+    dstate[15] = a40*state[9]  + a41*state[15] + a42*state[21] + a43*state[27] + a44*state[33] + a45*state[39] 
+    dstate[16] = a40*state[10] + a41*state[16] + a42*state[22] + a43*state[28] + a44*state[34] + a45*state[40] 
+    dstate[17] = a40*state[11] + a41*state[17] + a42*state[23] + a43*state[29] + a44*state[35] + a45*state[41] 
+
+    # 6th row ...
+    dstate[18] = a50*state[6]  + a51*state[12] + a52*state[18] + a53*state[24] + a54*state[30] + a55*state[36]
+    dstate[19] = a50*state[7]  + a51*state[13] + a52*state[19] + a53*state[25] + a54*state[31] + a55*state[37] 
+    dstate[20] = a50*state[8]  + a51*state[14] + a52*state[20] + a53*state[26] + a54*state[32] + a55*state[38] 
+    dstate[21] = a50*state[9]  + a51*state[15] + a52*state[21] + a53*state[27] + a54*state[33] + a55*state[39] 
+    dstate[22] = a50*state[10] + a51*state[16] + a52*state[22] + a53*state[28] + a54*state[34] + a55*state[40] 
+    dstate[23] = a50*state[11] + a51*state[17] + a52*state[23] + a53*state[29] + a54*state[35] + a55*state[41]
+    
+    return dstate    
+
 
 # ------------------------------------------------------------------------------------------------ #
 # define RHS function in CR3BP

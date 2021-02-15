@@ -8,7 +8,7 @@ import scipy.linalg as la
 from scipy.integrate import odeint, solve_ivp
 from numba import jit
 
-from ._rhs_functions import rhs_twobody
+from ._rhs_functions import rhs_twobody, twobody_with_STM
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -66,32 +66,31 @@ def propagate_twobody_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=Fals
 
     # if initial STM is provided, also propagate STM (i.e. integrate 6+36=42 differential equations)
     else:
-        raise Exception("Not implemented yet!")
-        # # extend state to include STM
-        # state0ext = np.zeros((42,))
-        # # store cartesian state
-        # state0ext[:6] = state0
-        # # store initial identity stm into extended state vector
-        # state0ext[5+1]  = 1
-        # state0ext[5+8]  = 1
-        # state0ext[5+15] = 1
-        # state0ext[5+22] = 1
-        # state0ext[5+29] = 1
-        # state0ext[5+36] = 1
-        # # propagate state and stm
-        # sol = odeint(func=rhs_cr3bp_with_STM_numba, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=0, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+        # extend state to include STM
+        state0ext = np.zeros((42,))
+        # store cartesian state
+        state0ext[:6] = state0
+        # store initial identity stm into extended state vector
+        state0ext[5+1]  = 1
+        state0ext[5+8]  = 1
+        state0ext[5+15] = 1
+        state0ext[5+22] = 1
+        state0ext[5+29] = 1
+        state0ext[5+36] = 1
+        # propagate state and stm
+        sol = odeint(func=twobody_with_STM, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=0, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
 
-        # # unpack cartesian state and time
-        # times = time_array       # time
-        # x_arr  = sol[:,0]
-        # y_arr  = sol[:,1]
-        # z_arr  = sol[:,2]
-        # vx_arr = sol[:,3]
-        # vy_arr = sol[:,4]
-        # vz_arr = sol[:,5]
+        # unpack cartesian state and time
+        times = time_array       # time
+        x_arr  = sol[:,0]
+        y_arr  = sol[:,1]
+        z_arr  = sol[:,2]
+        vx_arr = sol[:,3]
+        vy_arr = sol[:,4]
+        vz_arr = sol[:,5]
 
-        # # unpack STM
-        # stmmat = sol[:,6:].T
+        # unpack STM
+        stmmat = sol[:,6:].T
     
     # create numpy array of state at final time of propagation
     statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
@@ -140,30 +139,29 @@ def propagate_twobody_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fa
 
     # if initial STM is provided, also propagate STM (i.e. integrate 6+36=42 differential equations)
     else:
-        raise Exception("Not implemented yet!")
-        # extend state to include STM
-        # state0ext = np.zeros((42,))
-        # # store cartesian state
-        # state0ext[:6] = state0
-        # # store initial identity stm into extended state vector
-        # state0ext[5+1]  = 1
-        # state0ext[5+8]  = 1
-        # state0ext[5+15] = 1
-        # state0ext[5+22] = 1
-        # state0ext[5+29] = 1
-        # state0ext[5+36] = 1
-        # # propagate state and stm
-        # sol = solve_ivp(fun=rhs_twobody, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
-        # # unpack cartesian state an#d time
-        # times = sol.t       # time
-        # x_arr  = sol.y[0]
-        # y_arr  = sol.y[1]
-        # z_arr  = sol.y[2]
-        # vx_arr = sol.y[3]
-        # vy_arr = sol.y[4]
-        # vz_arr = sol.y[5]
-        # # unpack STM
-        # stmmat = sol.y[6:,:]
+        extend state to include STM
+        state0ext = np.zeros((42,))
+        # store cartesian state
+        state0ext[:6] = state0
+        # store initial identity stm into extended state vector
+        state0ext[5+1]  = 1
+        state0ext[5+8]  = 1
+        state0ext[5+15] = 1
+        state0ext[5+22] = 1
+        state0ext[5+29] = 1
+        state0ext[5+36] = 1
+        # propagate state and stm
+        sol = solve_ivp(fun=twobody_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+        # unpack cartesian state an#d time
+        times = sol.t       # time
+        x_arr  = sol.y[0]
+        y_arr  = sol.y[1]
+        z_arr  = sol.y[2]
+        vx_arr = sol.y[3]
+        vy_arr = sol.y[4]
+        vz_arr = sol.y[5]
+        # unpack STM
+        stmmat = sol.y[6:,:]
     
     # create numpy array of state at final time of propagation
     statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
