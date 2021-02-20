@@ -37,7 +37,7 @@ def rhs_twobody(t,state,gm):
 # ------------------------------------------------------------------------------------------------ #
 # define RHS function with STMin two body problem
 @jit(nopython=True)
-def twobody_stm(t, state, mu):
+def rhs_twobody_with_STM(t, state, mu):
     # radius
     r = np.sqrt(state[0]**2 + state[1]**2 + state[2]**2)
     dstate = np.zeros(len(state),)
