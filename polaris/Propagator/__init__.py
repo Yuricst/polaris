@@ -7,7 +7,7 @@ Yuri Shimane
 
 
 # right-hand side functions
-from ._rhs_functions import rhs_twobody, twobody_with_STM, rhs_cr3bp, rhs_pcr3bp, rhs_cr3bp_with_STM, rhs_pcr3bp_with_STM, rhs_bcr4bp, rhs_bcr4bp_with_STM, rhs_ccr4bp
+from ._rhs_functions import rhs_twobody, rhs_twobody_with_STM, rhs_cr3bp, rhs_pcr3bp, rhs_cr3bp_with_STM, rhs_pcr3bp_with_STM, rhs_bcr4bp, rhs_bcr4bp_with_STM, rhs_ccr4bp
 
 
 # integrators
