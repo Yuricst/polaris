@@ -8,7 +8,7 @@ import scipy.linalg as la
 from scipy.integrate import odeint, solve_ivp
 from numba import jit
 
-from ._rhs_functions import rhs_twobody, twobody_with_STM
+from ._rhs_functions import rhs_twobody, rhs_twobody_with_STM
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -78,7 +78,7 @@ def propagate_twobody_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=Fals
         state0ext[5+29] = 1
         state0ext[5+36] = 1
         # propagate state and stm
-        sol = odeint(func=twobody_with_STM, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=0, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+        sol = odeint(func=rhs_twobody_with_STM, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=0, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
 
         # unpack cartesian state and time
         times = time_array       # time
@@ -139,7 +139,7 @@ def propagate_twobody_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fa
 
     # if initial STM is provided, also propagate STM (i.e. integrate 6+36=42 differential equations)
     else:
-        extend state to include STM
+        # extend state to include STM
         state0ext = np.zeros((42,))
         # store cartesian state
         state0ext[:6] = state0
@@ -151,7 +151,7 @@ def propagate_twobody_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fa
         state0ext[5+29] = 1
         state0ext[5+36] = 1
         # propagate state and stm
-        sol = solve_ivp(fun=twobody_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+        sol = solve_ivp(fun=rhs_twobody_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
         # unpack cartesian state an#d time
         times = sol.t       # time
         x_arr  = sol.y[0]
