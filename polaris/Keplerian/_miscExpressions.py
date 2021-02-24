@@ -53,6 +53,24 @@ def get_c3(mu, r, v):
     return 2*get_energy(mu, r, v)
 
 
+@jit(nopython=True)
+def get_fpa(state, mu):
+    """Get flight-path angle, between perpendicular to position vector and velocity vector
+    
+    Args:
+        state (np.array): state-vector
+        mu (float): gravitational parameter
+    
+    Returns:
+        (float): FPA, in radians
+        
+    """
+    h = la.norm(np.cross(state[0:3], state[3:6]))
+    vperp = h / la.norm(state[0:3])
+    vr = mu/h * la.norm(get_eccentricity(state, mu)) * np.sin(get_trueanomaly(state, mu))
+    gamma = np.arctan(vr / vperp)
+    return gamma
+
 
 def get_hohmann_cost(mu, r1, r2):
     """Compute Hohmann transfer cost
