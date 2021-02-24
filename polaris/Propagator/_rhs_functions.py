@@ -782,3 +782,4 @@ def rhs_cr3bp_constantthrust(t,state,mu,a_thrust):
     deriv[5] = -((1-mu)/r1**3)*z - (mu/r2**3)*z                       + a_thrust_z
     
     return deriv
+

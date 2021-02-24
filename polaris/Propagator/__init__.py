@@ -17,6 +17,7 @@ from ._propagator_twobody import propagate_twobody, propagate_twobody_odeint, pr
 from ._propagator_cr3bp_thrust import propagate_cr3bp_constantthrust
 #from ._jitcode_propagator import propagate_cr3bp_jitcode, propagate_pcr3bp_jitcode
 from ._propagator_bcr4bp import propagate_bcr4bp, propagate_bcr4bp_odeint, propagate_bcr4bp_solve_ivp
+from ._propagator_ccr4bp import propagate_ccr4bp, propagate_ccr4bp_odeint, propagate_ccr4bp_solve_ivp
 
 # single-shooting differential correction
 from ._ssdc import ssdc
