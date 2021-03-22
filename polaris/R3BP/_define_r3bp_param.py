@@ -92,6 +92,7 @@ def get_cr3bp_param(m1_naifID, m2_naifID):
     paramCR3BP.mu     = m2_gm / (m1_gm + m2_gm)
     paramCR3BP.lstar  = a2
     paramCR3BP.tstar  = np.sqrt( ( a2 )**3 / ( m1_gm + m2_gm ) )
+    paramCR3BP.vstar = paramCR3BP.lstar/paramCR3BP.tstar
     paramCR3BP.mstar  = m1_gm + m2_gm
     paramCR3BP.m2_soi = a2 * (m2_gm/m1_gm)**(2/5)
     return paramCR3BP
@@ -137,6 +138,7 @@ def get_bcr4bp_param(m1_naifID, m2_naifID):
     paramBCR4BP.mu     = paramCR3BP.mu
     paramBCR4BP.lstar  = paramCR3BP.lstar 
     paramBCR4BP.tstar  = paramCR3BP.tstar 
+    paramBCR4BP.vstar  = paramCR3BP.lstar/paramCR3BP.tstar
     paramBCR4BP.mstar  = paramCR3BP.mstar 
     paramBCR4BP.m2_soi = paramCR3BP.m2_soi
     return paramBCR4BP

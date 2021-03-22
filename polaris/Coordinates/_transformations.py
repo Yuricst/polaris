@@ -113,7 +113,7 @@ def shift_state(state, shift, axis="x"):
 
 # converting rotating state to inertial state
 @jit(nopython=True)
-def rotating2inertial(state_r, theta):
+def rotating2inertial(state_r, theta, om=1.0):
     """Converts state in rotating frame state to intrertial frame (assumes rotating frame rotates anti-clockwise)
     
     Args:
@@ -129,19 +129,17 @@ def rotating2inertial(state_r, theta):
     rotmat = np.array([ [np.cos(theta), -np.sin(theta), 0.0, 0.0, 0.0, 0.0],
                         [np.sin(theta),  np.cos(theta), 0.0, 0.0, 0.0, 0.0],
                         [0.0,    0.0,    1.0,                0.0, 0.0, 0.0],
-                        [-np.sin(theta), -np.cos(theta), 0.0, np.cos(theta), -np.sin(theta), 0.0],
-                        [np.cos(theta),  -np.sin(theta), 0.0, np.sin(theta),  np.cos(theta), 0.0],
+                        [-np.sin(theta*om), -np.cos(theta*om), 0.0, np.cos(theta), -np.sin(theta), 0.0],
+                        [ np.cos(theta*om), -np.sin(theta*om), 0.0, np.sin(theta),  np.cos(theta), 0.0],
                         [0.0, 0.0, 0.0, 0.0, 0.0, 1.0] ])
-
     # transform
     state_i = np.dot(rotmat, state_r)
-
     return state_i
 
 
 # converting inertial state to rotating state
 @jit(nopython=True)
-def inertial2rotating(state_i, theta):
+def inertial2rotating(state_i, theta, om=1.0):
     """Converts state in inertial frame to rotating frame
     
     Args:
@@ -156,13 +154,12 @@ def inertial2rotating(state_i, theta):
     rotmat = la.inv( np.array([ [np.cos(theta), -np.sin(theta), 0.0, 0.0, 0.0, 0.0],
                                 [np.sin(theta), np.cos(theta), 0.0, 0.0, 0.0, 0.0],
                                 [0.0, 0.0, 1.0, 0.0, 0.0, 0],
-                                [-np.sin(theta), -np.cos(theta), 0.0, np.cos(theta), -np.sin(theta), 0.0],
-                                [np.cos(theta), -np.sin(theta), 0.0, np.sin(theta), np.cos(theta), 0.0],
+                                [-np.sin(theta*om), -np.cos(theta*om), 0.0, np.cos(theta), -np.sin(theta), 0.0],
+                                [ np.cos(theta*om), -np.sin(theta*om), 0.0, np.sin(theta), np.cos(theta), 0.0],
                                 [0.0, 0.0, 0.0, 0.0, 0.0, 1.0] ]) )
 
     # transform
     state_r = np.dot(rotmat, state_i)
-
     return state_r
 
 
@@ -277,7 +274,6 @@ def convert_propout_rotating2inertial(propout, theta0, mu, mass_center=1):
     propout_i = {"xs": x_tmp, "ys": y_tmp, "zs": z_tmp, 
                   "vxs": vx_tmp, "vys": vy_tmp, "vzs": vz_tmp,
                   "times": propout["times"], 'state0': state0, 'statef': statef_i}
-
     return propout_i
 
 

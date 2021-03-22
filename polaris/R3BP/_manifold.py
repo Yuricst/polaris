@@ -18,7 +18,8 @@ def _get_eigvecs_yu_ys(monodromy):
     """Function obtains unstable and stable eigenvectors from monodromy matrix
     
     Args:
-        monodromy (np.arr): 6x6 array of monodromy matrix
+        monodromy (np.array): 6x6 array of monodromy matrix
+
     Returns:
         (tuple): tuple of unstable and stable eigenvectors
     """
@@ -59,6 +60,7 @@ def _get_eigvecs_yu_ys(monodromy):
 # function to scale epsilon, the linear perturbation term for constructing manifolds
 def _scale_epsilon(mu, stateP, period, yu0, ys0, monodromy, lstar, stable):
     """Function evaluates linear perturbation approriate to the LPO
+
     Choices include: perturbation_km_lst = np.array( [0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100.0, 500.0, 1000.0] )
     
     Args:
@@ -70,6 +72,7 @@ def _scale_epsilon(mu, stateP, period, yu0, ys0, monodromy, lstar, stable):
         monodromy (np.array): 6 by 6 array of monodromy matrix
         lstar (float): characteristic time of CR3BP
         stable (bool): stable (True) or unstable (False) manifolds (default is False)
+
     Returns:
         (float): linear perturbation epsilon
     """
@@ -122,14 +125,16 @@ def _scale_epsilon(mu, stateP, period, yu0, ys0, monodromy, lstar, stable):
     return eps
 
 
+
 # ---------------------------------------------------------------------------------------- #
 # function to generate branch of manifold
 def _get_branch(mu, state0, eigvec, eps, tf_manif, events=None, manif_steps=2000, ivp_method='LSODA', force_solve_ivp=False):
     """Function wraps propagate_cr3bp to generate branch of manifold, called internally in get_manifolds()
+
     Args:
         mu (float): CR3BP mu
-        state0 (np.arr): numpy array of initial state for the branch, along the halo (i.e. unperturbed)
-        eigvec (np.arr): stable or unstable eigenvector
+        state0 (np.array): numpy array of initial state for the branch, along the halo (i.e. unperturbed)
+        eigvec (np.array): stable or unstable eigenvector
         eps0 (float): magnitude of linear perturbation to be applied
         tf_manif (float): final propagation time of manifold; should be negative if stable, positive if unstable branch
         detect_rp_m2 (bool): whether to detect the periapses of the branch (default is True)
@@ -149,6 +154,7 @@ def _get_branch(mu, state0, eigvec, eps, tf_manif, events=None, manif_steps=2000
 # function to get manifolds
 def get_manifold(mu, stateP, period, tf_manif, lstar, num_branches=50, eps=None, stable=True, events=None, manif_steps=2000, ivp_method='LSODA', full_output=False, force_solve_ivp=False):
     """Function generates and returns manifolds
+
     Args:
         mu (float): CR3BP mass parameter
         stateP (np.array): state of periodic motion
@@ -163,8 +169,9 @@ def get_manifold(mu, stateP, period, tf_manif, lstar, num_branches=50, eps=None,
         ivp_method (str): integrator used for propagating manifold
         full_output (bool): whether to return full information of the generated manifold
         force_solve_ivp (bool): whether to force solve_ivp() for generating manifolds
+
     Returns:
-        (tuple)
+        (tuple): plus-direction and minus-direction manifold branches
     """
     # propagate result for plotting along with stm (need stm!)
     propout = propagate_cr3bp(mu, stateP, period, stm_option=True, steps=4000, ivp_method=ivp_method, ivp_rtol=1e-12, ivp_atol=1e-12, force_solve_ivp=force_solve_ivp)
@@ -183,7 +190,7 @@ def get_manifold(mu, stateP, period, tf_manif, lstar, num_branches=50, eps=None,
     manifolds_pls = []
     manifolds_min = []
 
-    for i in tqdm(range(num_branches), desc='Manifold'):
+    for i in tqdm(range(num_branches), desc='Manifold', leave=False):
         # compute index to extract state
         extractind = int( np.round(i*interval_manif) )
         # state at current index
@@ -260,6 +267,7 @@ def get_manifold(mu, stateP, period, tf_manif, lstar, num_branches=50, eps=None,
                     "vxs": branch["propout"]["vxs"], 
                     "vys": branch["propout"]["vys"], 
                     "vzs": branch["propout"]["vzs"],
+                    "statef": branch["propout"]["statef"],
                     "times": branch["propout"]["times"],
                     "eventStates": branch["propout"]["eventStates"],
                     "eventTimes":  branch["propout"]["eventTimes"],
@@ -274,6 +282,7 @@ def get_manifold(mu, stateP, period, tf_manif, lstar, num_branches=50, eps=None,
                     "vxs": branch["propout"]["vxs"], 
                     "vys": branch["propout"]["vys"], 
                     "vzs": branch["propout"]["vzs"],
+                    "statef": branch["propout"]["statef"],
                     "times": branch["propout"]["times"],
                     "eventStates": branch["propout"]["eventStates"],
                     "eventTimes":  branch["propout"]["eventTimes"],
