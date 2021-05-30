@@ -4,24 +4,32 @@
 <p align="center">
   <img src="./etc/polaris_logo.png" width="550" title="hover text">
 </p>
-
 polaris is a Python library for preliminary spacecraft trajectory design. 
 
-### Dependencies
-- numba
-- numpy
-- pandas
-- scipy
+PyPI: https://pypi.org/project/astro-polaris/
 
-Although not necessary to run polaris, the following packages are also used within the example scripts and Jupyter notebooks:
-- tqdm
-- plotly
 
 ### Installation
-Clone this repository with
+Install via pip
+
+```bash
+pip install astro-polaris
+```
+
+or clone this repository with
+
 ```bash
 $ git clone https://github.com/Yuricst/polaris.git
 ```
+
+### Dependencies
+Core dependencies are
+
+- `numba`, `numpy`, `pandas`, `scipy`
+
+Although not necessary to run polaris, the following packages are also used within the example scripts and Jupyter notebooks:
+- `tqdm`, `plotly`
+
 
 ### Usage
 ```python
