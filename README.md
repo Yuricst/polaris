@@ -6,8 +6,7 @@
 </p>
 polaris is a Python library for preliminary spacecraft trajectory design. 
 
-Docs: 
-
+Docs: https://astro-polaris.readthedocs.io/en/latest/?
 [![PyPI](https://img.shields.io/pypi/v/astro-polaris.svg?style=for-the-badge)](https://pypi.org/project/astro-polaris/)
 
 
