@@ -30,11 +30,16 @@ Core dependencies are
 Although not necessary to run polaris, the following packages are also used within the example scripts and Jupyter notebooks:
 - `tqdm`, `plotly`
 
-
 ### Usage
+
+Subpackages within `polaris`  are imported as
+
 ```python
 import polaris.SolarSystemConstants as ssc
 import polaris.Propagator as prop
+import polaris.R3BP as r3bp
+import polaris.Keplerian as kepl
+import polaris.Coordinates as coord
 ```
 
 For examples, go to ```./examples/``` to see Jupyter notebook tutorials. 
