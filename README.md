@@ -110,5 +110,32 @@ plt.tight_layout(rect=[0, 0.01, 1, 1.03])
 plt.show()
 ```
 <p align="center">
-  <img src="./etc/earthmoon_l2halo_4000km.png" width="700" title="hover text">
+  <img src="./etc/earthmoon_l2halo_4000km.png" width="800" title="hover text">
+</p>
+
+We can also construct the manifolds of this halo orbit; consider for example the case of constructing its stable manifold
+
+```python
+mnfpls, mnfmin = r3bp.get_manifold(param_earth_moon.mu, state_conv, p_conv, tf_manif=5.0, lstar=param_earth_moon.lstar, 
+                                   stable=True, force_solve_ivp=False)
+```
+
+we can now plot
+
+```python
+plt.rcParams["font.size"] = 20
+fig, ax = plt.subplots(1,1, figsize=(12,8))
+for branch in mnfpls:
+    ax.plot(branch["xs"], branch["ys"], linewidth=0.8, c='deeppink')
+    
+for branch in mnfmin:
+    ax.plot(branch["xs"], branch["ys"], linewidth=0.8, c='dodgerblue')
+
+ax.set(xlabel='x, canonical', ylabel='y, canonical', title='Stable manifold of the L2 halo')
+plt.grid(True)
+plt.axis("equal")
+plt.show()
+```
+<p align="center">
+  <img src="./etc/earthmoon_l2halo_4000km_manifold.png" width="550" title="hover text">
 </p>
