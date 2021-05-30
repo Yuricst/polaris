@@ -48,7 +48,7 @@ def get_bcr4bp_mus(m1_naifID, m2_naifID):
     """
     # list of gm
     gmlst = sscs.get_gm(m1_naifID, m2_naifID, "10")
-    m1_gm, m2_gm, m3_gm = gmlst[0], gmlst[1], gmlist[2]
+    m1_gm, m2_gm, m3_gm = gmlst[0], gmlst[1], gmlst[2]
     if m1_gm < m2_gm:
         raise Exception("Excepting m1 > m2!")
     mu  = m2_gm / (m1_gm + m2_gm)
@@ -123,8 +123,8 @@ def get_bcr4bp_param(m1_naifID, m2_naifID):
     period_sun = 2*np.pi*np.sqrt(a_m1_sun**3/gm_sun)   # [sec]
 
     # compute rotation rate of sun about m1-m2 barycenter
-    tsyn   = kepl.get_synodic_period(period_sun, paramCR3BP.tstar)  # [sec]
-    om_sun = 2*np.pi / (tsyn / paramCR3BP.tstar)                    # [rad/canonical time]
+    tsyn   = kepl.get_synodic_period(period_sun, 2*np.pi*paramCR3BP.tstar)  # [sec]
+    om_sun = -2*np.pi / (tsyn / paramCR3BP.tstar)                           # [rad/canonical time]
 
     # compute scaled gm and length of sun
     a_sun = a_m1_sun / paramCR3BP.lstar
