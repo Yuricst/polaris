@@ -6,9 +6,9 @@
 </p>
 polaris is a Python library for preliminary spacecraft trajectory design. 
 
-PyPI: https://pypi.org/project/astro-polaris/
+Docs: 
 
-
+[![PyPI](https://img.shields.io/pypi/v/pygmo.svg?style=for-the-badge)](https://pypi.org/project/astro-polaris/)
 
 
 ### Installation
@@ -50,8 +50,6 @@ import polaris.Coordinates as coord
 ```
 
 For examples, go to ```./examples/``` to see Jupyter notebook tutorials. 
-The full documentation is available at https://github.com/Yuricst/polaris/wiki. 
-
 
 
 ### Quick Example
