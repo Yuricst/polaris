@@ -109,4 +109,6 @@ plt.suptitle('L2 halo')
 plt.tight_layout(rect=[0, 0.01, 1, 1.03])
 plt.show()
 ```
-
+<p align="center">
+  <img src="./etc/earthmoon_l2halo_4000km.png" width="700" title="hover text">
+</p>
