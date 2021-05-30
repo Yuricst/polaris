@@ -62,8 +62,6 @@ Here is a quick example of constructing a halo orbit in the Earth-Moon system. W
 import numpy as np
 import matplotlib.pyplot as plt
 
-import polaris.SolarSystemConstants as sscs
-import polaris.Keplerian as kepl
 import polaris.Propagator as prop
 import polaris.R3BP as r3bp
 ```
