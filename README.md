@@ -1,13 +1,15 @@
 # polaris
  polaris --- PythOnLibrary for AstRodynamIcS
-
+ 
 <p align="center">
   <img src="./etc/polaris_logo.png" width="550" title="hover text">
 </p>
+
+[![PyPI](https://img.shields.io/pypi/v/astro-polaris.svg?style=for-the-badge)](https://pypi.org/project/astro-polaris/)
+
 polaris is a Python library for preliminary spacecraft trajectory design. 
 
-Docs: https://astro-polaris.readthedocs.io/en/latest/?
-[![PyPI](https://img.shields.io/pypi/v/astro-polaris.svg?style=for-the-badge)](https://pypi.org/project/astro-polaris/)
+The full documentation can be found [here](https://astro-polaris.readthedocs.io/en/latest/?).
 
 
 ### Installation
