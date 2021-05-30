@@ -1,5 +1,5 @@
 from setuptools import setup
-
+import os
 
 requires = [
     'matplotlib>=3.3.2',
@@ -10,9 +10,15 @@ requires = [
 ]
 
 
+# long_description for readme
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+
 setup(
-    name='polaris',
-    version='0.1.0',
+    name='astro-polaris',
+    version='0.1.3',
     description='Astrodynamics library in Python',
     url='https://github.com/Yuricst/polaris',
     author='Yuri Shimane',
@@ -25,6 +31,9 @@ setup(
         'polaris.Keplerian',
         'polaris.Coordinates',
     ],
+    long_description=long_description,                                   # extract README file
+    long_description_content_type='text/markdown',         # long_descriptionの形式を'text/plain', 'text/x-rst', 'text/markdown'のいずれかから指定
+    keywords='astrodynamics python CR3BP',                 # PyPIでの検索用キーワードをスペース区切りで指定
     install_requires=requires,
     classifiers=[
         'Programming Language :: Python :: 3.7',
