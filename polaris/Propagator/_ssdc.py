@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Sngle shooting differential corrector
 Yuri Shimane
