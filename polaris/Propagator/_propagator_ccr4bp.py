@@ -5,6 +5,8 @@ import numpy as np
 from scipy.integrate import odeint, solve_ivp
 
 from ._rhs_functions import rhs_ccr4bp
+from .output import Propout
+
 
 def propagate_ccr4bp(
         state0, 
@@ -28,7 +30,7 @@ def propagate_ccr4bp(
         force_solve_ivp=False,
         printmessg=False,
         full_output_odeint=False,
-        switch2solveivp=True,
+        switch_solveivp=True,
         message=False):
     """Function propagates initial cartesian state in the planet-moon centered BCR4BP using scipy's solve_ivp. 
 
@@ -53,7 +55,7 @@ def propagate_ccr4bp(
 
     Returns:
         (dict): dictionary with entries:  
-            (numpy array) times, x_arr, y_arr, z_arr, vx_arr, vy_arr, vz_arr, stmmat; 
+            (numpy array) times, xs, ys, zs, vxs, vys, vzs, stms; 
             (numpy array) statef - Cartesian state at the end of the propagation (if using event, eventState is more accurate); 
             (outputs from solve_ivp at event): eventStates, eventTimes      
     """
@@ -63,7 +65,7 @@ def propagate_ccr4bp(
         propout, infodict = propagate_ccr4bp_odeint(state0, tf, mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3, steps=steps, stm0=stm0, ivp_rtol=ivp_rtol, ivp_atol=ivp_atol, state0_center=state0_center, full_output_odeint=True, printmessg=printmessg)
         
         # check if successful
-        if infodict['message']!='Integration successful.' and switch2solveivp==True:
+        if infodict['message']!='Integration successful.' and switch_solveivp==True:
             if message==True:
                 print('Failed with odeint(); switching to solve_ivp() for integration')
             # use solve_ivp
@@ -134,7 +136,7 @@ def propagate_ccr4bp_solve_ivp(
 
     Returns:
         (dict): dictionary with entries:  
-            (numpy array) times, x_arr, y_arr, z_arr, vx_arr, vy_arr, vz_arr, stmmat; 
+            (numpy array) times, xs, ys, zs, vxs, vys, vzs, stms; 
             (numpy array) statef - Cartesian state at the end of the propagation (if using event, eventState is more accurate); 
             (outputs from solve_ivp at event): eventStates, eventTimes      
     """
@@ -145,23 +147,23 @@ def propagate_ccr4bp_solve_ivp(
     else:
         state0cc = state0
 
-    time_array = np.linspace(0, tf, steps)
-    sol = solve_ivp(fun=rhs_ccr4bp, t_span=(0,tf), y0=state0cc, events=events, t_eval=time_array, args=(mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+    timesay = np.linspace(0, tf, steps)
+    sol = solve_ivp(fun=rhs_ccr4bp, t_span=(0,tf), y0=state0cc, events=events, t_eval=timesay, args=(mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
     # unpack result
     times = sol.t       # time
     if state0_center=="barycenter":
-        x_arr  = sol.y[0] - mu2   # shift back
+        xs  = sol.y[0] - mu2   # shift back
     else:
-        x_arr  = sol.y[0]
-    y_arr  = sol.y[1]
-    z_arr  = sol.y[2]
-    vx_arr = sol.y[3]
-    vy_arr = sol.y[4]
-    vz_arr = sol.y[5]
-    # stmmat is not returned (just a place-holder)
-    stmmat = np.zeros((1,))
+        xs  = sol.y[0]
+    ys  = sol.y[1]
+    zs  = sol.y[2]
+    vxs = sol.y[3]
+    vys = sol.y[4]
+    vzs = sol.y[5]
+    # stms is not returned (just a place-holder)
+    stms = np.zeros((1,))
     # create numpy array of state at final time of propagation
-    statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
+    statef = np.array([xs[-1], ys[-1], zs[-1], vxs[-1], vys[-1], vzs[-1]])
     # evaluate rhs based on final state
     try:
         dstatef = rhs_ccr4bp(times[-1], statef, mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3)
@@ -178,8 +180,8 @@ def propagate_ccr4bp_solve_ivp(
         eventTimes = sol.t_events
     
     # prepare output dictionary
-    out = {"times":times, "xs":x_arr, "ys":y_arr, "zs":z_arr, "vxs":vx_arr, "vys":vy_arr, "vzs":vz_arr, "state0": state0cc,
-            "statef":statef, "dstatef": dstatef, "stms":stmmat, "eventStates":eventStates, "eventTimes":eventTimes}
+    out = {"times":times, "xs":xs, "ys":ys, "zs":zs, "vxs":vxs, "vys":vys, "vzs":vzs, "state0": state0cc,
+            "statef":statef, "dstatef": dstatef, "stms":stms, "eventStates":eventStates, "eventTimes":eventTimes}
 
     return out
 
@@ -231,7 +233,7 @@ def propagate_ccr4bp_odeint(
 
     Returns:
         (dict): dictionary with entries:  
-            (numpy array) times, x_arr, y_arr, z_arr, vx_arr, vy_arr, vz_arr, stmmat; 
+            (numpy array) times, xs, ys, zs, vxs, vys, vzs, stms; 
             (numpy array) statef - Cartesian state at the end of the propagation (if using event, eventState is more accurate);     
     """
 
@@ -242,29 +244,29 @@ def propagate_ccr4bp_odeint(
         state0cc = state0
 
     # construct time-array where state will be returned
-    time_array = np.linspace(0, tf, steps)
+    timesay = np.linspace(0, tf, steps)
     
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
     if stm0==False:    
         
         # propagate state
         if full_output_odeint==False:
-            sol = odeint(func=rhs_ccr4bp, y0=state0, t=time_array, args=(mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
+            sol = odeint(func=rhs_ccr4bp, y0=state0, t=timesay, args=(mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
         else:
-            sol, optout = odeint(func=rhs_ccr4bp, y0=state0, t=time_array, args=(mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
+            sol, optout = odeint(func=rhs_ccr4bp, y0=state0, t=timesay, args=(mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
 
         # unpack cartesian state and time
-        times  = time_array       # time
-        x_arr  = sol[:,0]
-        y_arr  = sol[:,1]
-        z_arr  = sol[:,2]
-        vx_arr = sol[:,3]
-        vy_arr = sol[:,4]
-        vz_arr = sol[:,5]
-        # stmmat is not returned (just a place-holder)
-        stmmat = np.zeros((1,))
+        times  = timesay       # time
+        xs  = sol[:,0]
+        ys  = sol[:,1]
+        zs  = sol[:,2]
+        vxs = sol[:,3]
+        vys = sol[:,4]
+        vzs = sol[:,5]
+        # stms is not returned (just a place-holder)
+        stms = np.zeros((1,))
          # create numpy array of state at final time of propagation
-        statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
+        statef = np.array([xs[-1], ys[-1], zs[-1], vxs[-1], vys[-1], vzs[-1]])
         # evaluate rhs based on final state
         try:
           dstatef = rhs_ccr4bp(times[-1], statef, mu1, mu2, mu3, om2, om3, theta02, theta03, d2, d3)
@@ -288,36 +290,36 @@ def propagate_ccr4bp_odeint(
       #   # propagate state and stm
       #   if full_output_odeint == False:
       #       if jitoption==True:
-      #           sol = odeint(func=rhs_bcr4bp_planetmoon_with_STM_numba, y0=state0ext, t=time_array, args=(mu,mu3,a,t0,omega_s,eps), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
+      #           sol = odeint(func=rhs_bcr4bp_planetmoon_with_STM_numba, y0=state0ext, t=timesay, args=(mu,mu3,a,t0,omega_s,eps), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
       #       else:
-      #           sol = odeint(func=rhs_bcr4bp_planetmoon_with_STM, y0=state0ext, t=time_array, args=(mu,mu3,a,t0,omega_s,eps), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
+      #           sol = odeint(func=rhs_bcr4bp_planetmoon_with_STM, y0=state0ext, t=timesay, args=(mu,mu3,a,t0,omega_s,eps), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
       #   else:
       #       if jitoption==True:
-      #           sol, optout = odeint(func=rhs_bcr4bp_planetmoon_with_STM_numba, y0=state0ext, t=time_array, args=(mu,mu3,a,t0,omega_s,eps), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
+      #           sol, optout = odeint(func=rhs_bcr4bp_planetmoon_with_STM_numba, y0=state0ext, t=timesay, args=(mu,mu3,a,t0,omega_s,eps), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
       #       else:
-      #           sol, optout = odeint(func=rhs_bcr4bp_planetmoon_with_STM, y0=state0ext, t=time_array, args=(mu,mu3,a,t0,omega_s,eps), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
+      #           sol, optout = odeint(func=rhs_bcr4bp_planetmoon_with_STM, y0=state0ext, t=timesay, args=(mu,mu3,a,t0,omega_s,eps), Dfun=None, col_deriv=0, full_output=full_output_odeint, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=printmessg, tfirst=True)
 
       #   # unpack cartesian state and time
-      #   times  = time_array       # time
-      #   x_arr  = sol[:,0]
-      #   y_arr  = sol[:,1]
-      #   z_arr  = sol[:,2]
-      #   vx_arr = sol[:,3]
-      #   vy_arr = sol[:,4]
-      #   vz_arr = sol[:,5]
+      #   times  = timesay       # time
+      #   xs  = sol[:,0]
+      #   ys  = sol[:,1]
+      #   zs  = sol[:,2]
+      #   vxs = sol[:,3]
+      #   vys = sol[:,4]
+      #   vzs = sol[:,5]
       #   # unpack STM
-      #   stmmat = sol[:,6:].T
+      #   stms = sol[:,6:].T
       #   # create numpy array of state at final time of propagation
-      #   statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
+      #   statef = np.array([xs[-1], ys[-1], zs[-1], vxs[-1], vys[-1], vzs[-1]])
       #   # evaluate rhs based on final state
       #   dstatef = rhs_bcr4bp_planetmoon(times[-1], statef, mu, mu3, a, t0, omega_s, eps)
 
     # create numpy array of state at final time of propagation
-    statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
+    statef = np.array([xs[-1], ys[-1], zs[-1], vxs[-1], vys[-1], vzs[-1]])
     
     # prepare output dictionary
-    out = {"times":times, "xs":x_arr, "ys":y_arr, "zs":z_arr, "vxs":vx_arr, "vys":vy_arr, "vzs":vz_arr, "state0": state0cc,
-            "statef":statef, "dstatef": dstatef, "stms":stmmat}
+    out = {"times":times, "xs":xs, "ys":ys, "zs":zs, "vxs":vxs, "vys":vys, "vzs":vzs, "state0": state0cc,
+            "statef":statef, "dstatef": dstatef, "stms":stms}
 
     if full_output_odeint==False:
         return out
