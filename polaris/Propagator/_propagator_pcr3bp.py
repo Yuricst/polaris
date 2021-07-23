@@ -99,20 +99,9 @@ def propagate_pcr3bp_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False
     statef = np.array([xs[-1], ys[-1], vxs[-1], vys[-1]])
     # evaluate rhs based on final state
     dstatef = rhs_pcr3bp(times[-1], statef, mu)
-    # prepare output dictionary
-    out = {
-        "times": times,
-        "xs": xs,
-        "ys": ys,
-        "vxs": vxs,
-        "vys": vys,
-        "state0": state0,
-        "statef": statef,
-        "stms":stms,
-        "dstatef":dstatef,
-        "eventStates": [],
-        "eventTimes": []
-    }
+
+    # prepare output
+    out = Propout(xs, ys, zs, vxs, vys, vzs, times, state0, statef, stms, dstatef, None, None)
     return out, infodict
 
 

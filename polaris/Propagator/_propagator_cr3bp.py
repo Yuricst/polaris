@@ -19,7 +19,7 @@ def propagate_cr3bp(CR3BPparam, state0, tf, steps=200, t0=0.0, stm_option=False,
     odeint() is used if method is 'LSODA' and events=None or force_solve_ivp=False
 
     Args:
-        mu (float): cr3bp parameter
+        CR3BPparam (CR3BP): cr3bp parameters
         state0 (numpy array): numpy array containing cartesian state, length 6 for 3D case (use .._pcr3bp for 2D case)
         tf (float): final time of integration
         steps (float): number of steps to extract points (default is 200)

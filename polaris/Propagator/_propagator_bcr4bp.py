@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Propagator functions for bcr4bp
+Propagator functions for BCR4BP frame, planet-moon system centered
 """
 
 import numpy as np
@@ -19,11 +19,10 @@ def propagate_bcr4bp(BCR4BPparam, state0, tf, beta0, steps=2000, t0=0.0, stm_opt
     odeint() is used if method is 'LSODA' and events=None or force_solve_ivp=False
 
     Args:
-        mu (float): bcr4bp parameter
+        BCR4BPparam (BCR4BP): bcr4bp parameter
         state0 (numpy array): numpy array containing cartesian state
         tf (float): final time of integration
-        mu_sun
-
+        beta0 (float): initial angle
         steps (float): number of steps to extract points (default is 2000)
         t0 (float): initial time
         stm_option (bool): choice whether to also propagate STM (defualt is False)

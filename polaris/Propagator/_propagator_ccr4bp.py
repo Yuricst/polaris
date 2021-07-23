@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Propagator function wrapper in BCR4BP, planet-moon centered"""
+"""Propagator function wrapper in CCR4BP"""
 
 import numpy as np
 from scipy.integrate import odeint, solve_ivp
