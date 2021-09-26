@@ -29,6 +29,7 @@ def propagate_twobody(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, even
         ivp_rtol (float): relative tolerance in solve_ivp() function (default is 1e-12)
         ivp_atol (float): absolute tolerance in solve_ivp() function (default is 1e-12)
         force_solve_ivp (bool): forcing the use of solve_ivp function (default is False)
+        
     Returns:
         (dict): dictionary with entries "xs", "ys", "zs", "vxs", "vys", "vzs", "times", "stms", "statef", "dstatef", "eventStates", "eventTimes"
     """
