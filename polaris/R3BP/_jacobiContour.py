@@ -7,9 +7,12 @@ Yuri Shimane
 import numpy as np 
 import matplotlib.pyplot as plt
 
-
-from ._lagrangePoints import lagrangePoints
-from ._define_r3bp_param import get_cr3bp_mu
+try:
+    from ._lagrangePoints import lagrangePoints
+    from ._define_r3bp_param import get_cr3bp_mu
+except:
+    from _lagrangePoints import lagrangePoints
+    from _define_r3bp_param import get_cr3bp_mu
 
 
 def get_jacobi_contour(naifID1, naifID2, cmin=2, cmax=4, cstep=0.05, scale=1, grid=1000, cmap='viridis'):
