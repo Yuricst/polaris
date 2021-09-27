@@ -87,6 +87,7 @@ def print_elts(elts_dict):
 	raan = elts_dict["raan"]
 	aop  = elts_dict["aop"]
 	ta   = elts_dict["ta"]
+	period = elts_dict["period"]/60/60
 	print("****** ORBITAL ELEMENTS ******")
 	print(f"SMA:  {sma:1.6e}")
 	print(f"INC:  {inc:1.6e} [rad]")
@@ -94,5 +95,6 @@ def print_elts(elts_dict):
 	print(f"RAAN: {raan:1.6e} [rad]")
 	print(f"AOP:  {aop:1.6e} [rad]")
 	print(f"TA:   {ta:1.6e} [rad]")
+	print(f"period:   {period:1.6e} [hour]")
 	print("******************************")
 	return

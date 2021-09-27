@@ -240,6 +240,7 @@ def trueAnom2meanAnom(ta, ecc):
     # convert EA to MA
     meanAnom = eccAnom2meanAnom(eccAnom, ecc)
     return __angle_cleanup(meanAnom)
+    
 
 @jit(nopython=True)
 def __angle_cleanup(phi, zero_to_2pi=True):
