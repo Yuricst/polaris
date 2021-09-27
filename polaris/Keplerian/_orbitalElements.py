@@ -24,8 +24,8 @@ def get_inclination(state):
     """
 
     # decompose state to position and velocity vector
-    r = np.array([state[0], state[1], state[2]])
-    v = np.array([state[3], state[4], state[5]])
+    r = state[0:3]
+    v = state[3:6]
     # angular momentum
     h = np.cross(r,v)
     # inclination
@@ -45,8 +45,8 @@ def get_raan(state):
     """
     
     # decompose state to position and velocity vector
-    r = np.array([state[0], state[1], state[2]])
-    v = np.array([state[3], state[4], state[5]])
+    r = state[0:3]
+    v = state[3:6]
     # angular momentum
     h = np.cross(r,v)
     # normal direction of xy-plane
@@ -70,8 +70,8 @@ def get_eccentricity(state, mu):
     """
     
     # decompose state to position and velocity vector
-    r = np.array([state[0], state[1], state[2]])
-    v = np.array([state[3], state[4], state[5]])
+    r = state[0:3]
+    v = state[3:6]
     # angular momentum
     h = np.cross(r,v)
     # normal direction of xy-plane
@@ -95,8 +95,8 @@ def get_omega(state, mu):
     """
     
     # decompose state to position and velocity vector
-    r = np.array([state[0], state[1], state[2]])
-    v = np.array([state[3], state[4], state[5]])
+    r = state[0:3]
+    v = state[3:6]
     # angular momentum
     h = np.cross(r,v)
     # normal direction of xy-plane
@@ -104,10 +104,14 @@ def get_omega(state, mu):
     ndir = np.cross(zdir, h)
     # compute eccentricity vector
     ecc = (1/mu) * np.cross(v,h) - r/la.norm(r)
+
     # compute argument of periapsis
-    omega = np.arccos( np.dot(ndir,ecc) / (la.norm(ndir)*la.norm(ecc)) )
-    if ecc[2] < 0:
-        omega = 2*np.pi - omega
+    if la.norm(ndir)*la.norm(ecc) != 0.0:
+        omega = np.arccos( np.dot(ndir,ecc) / (la.norm(ndir)*la.norm(ecc)) )
+        if ecc[2] < 0:
+            omega = 2*np.pi - omega
+    else:
+        omega = 0.0
     return omega
 
 
@@ -123,8 +127,8 @@ def get_trueanom(state, mu):
         (float): true anomaly in radians
     """
     # decompose state to position and velocity vector
-    r = np.array([state[0], state[1], state[2]])
-    v = np.array([state[3], state[4], state[5]])
+    r = state[0:3]
+    v = state[3:6]
     # angular momentum
     h = la.norm( np.cross(r,v) )
     # radial velocity
@@ -145,8 +149,8 @@ def get_semiMajorAxis(state, mu):
         (float): semi-major axis
     """
     # decompose state to position and velocity vector
-    r = np.array([state[0], state[1], state[2]])
-    v = np.array([state[3], state[4], state[5]])
+    r = state[0:3]
+    v = state[3:6]
     # angular momentum
     h = la.norm( np.cross(r,v) )
     # eccentricity

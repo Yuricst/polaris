@@ -43,6 +43,16 @@ def __elts2sv(sma, inc, ecc, raan, aop, ta, mu):
 	rPF = h**2 / (mu*(1 + ecc*np.cos(ta))) * np.array([np.cos(ta), np.sin(ta), 0.0])
 	vPF = mu/h * np.array([-np.sin(ta), ecc + np.cos(ta), 0.0])
 	# convert to inertial frame
-	rI = np.dot(rotmat3(-raan), np.dot(rotmat1(-inc), np.dot(rotmat3(-aop), rPF)))
-	vI = np.dot(rotmat3(-raan), np.dot(rotmat1(-inc), np.dot(rotmat3(-aop), vPF)))
+	if (raan != 0.0) and (inc != 0.0) and (aop != 0.0):
+		rI = np.dot(rotmat3(-raan), np.dot(rotmat1(-inc), np.dot(rotmat3(-aop), rPF)))
+		vI = np.dot(rotmat3(-raan), np.dot(rotmat1(-inc), np.dot(rotmat3(-aop), vPF)))
+	elif (raan != 0.0) and (inc != 0.0) and (aop == 0.0):
+		rI = np.dot(rotmat3(-raan), np.dot(rotmat1(-inc), rPF))
+		vI = np.dot(rotmat3(-raan), np.dot(rotmat1(-inc), vPF))
+	elif (raan != 0.0) and (inc == 0.0) and (aop == 0.0):
+		rI = np.dot(rotmat3(-raan), rPF)
+		vI = np.dot(rotmat3(-raan), vPF)
+	else:
+		rI = rPF
+		vI = vPF
 	return np.concatenate((rI, vI))
