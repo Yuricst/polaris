@@ -23,7 +23,7 @@ def get_semiMajorAxes(*args):
     de431a = get_semiMajorAxes_dict()
     a_out = []
     for naifID in args:
-        bdyname = "BODY" + naifID + "_semiMajorAxis"
+        bdyname = "BODY" + str(naifID) + "_semiMajorAxis"
         a_out.append( de431a[bdyname] )
     return a_out
 

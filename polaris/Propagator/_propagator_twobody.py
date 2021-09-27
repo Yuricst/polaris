@@ -9,6 +9,7 @@ from scipy.integrate import odeint, solve_ivp
 from numba import jit
 
 from ._rhs_functions import rhs_twobody, rhs_twobody_with_STM
+from .output import Propout
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -47,23 +48,23 @@ def propagate_twobody(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, even
 def propagate_twobody_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=False, ivp_rtol=1e-12, ivp_atol=1e-12):
     """Propagator for two-body using odeint()"""
     # construct time-array where state will be returned
-    time_array = np.linspace(t0, tf, steps)
+    timesay = np.linspace(t0, tf, steps)
 
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
     if stm_option==False:    
         # propagate state
-        sol = odeint(func=rhs_twobody, y0=state0, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=0, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+        sol = odeint(func=rhs_twobody, y0=state0, t=timesay, args=(mu,), Dfun=None, col_deriv=0, full_output=0, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
         
         # unpack cartesian state and time
-        times  = time_array       # time
-        x_arr  = sol[:,0]
-        y_arr  = sol[:,1]
-        z_arr  = sol[:,2]
-        vx_arr = sol[:,3]
-        vy_arr = sol[:,4]
-        vz_arr = sol[:,5]
-        # stmmat is not returned (just a place-holder)
-        stmmat = np.zeros((1,))
+        times  = timesay       # time
+        xs  = sol[:,0]
+        ys  = sol[:,1]
+        zs  = sol[:,2]
+        vxs = sol[:,3]
+        vys = sol[:,4]
+        vzs = sol[:,5]
+        # stms is not returned (just a place-holder)
+        stms = np.zeros((1,))
 
     # if initial STM is provided, also propagate STM (i.e. integrate 6+36=42 differential equations)
     else:
@@ -79,64 +80,49 @@ def propagate_twobody_odeint(mu, state0, tf, steps=2000, t0=0.0, stm_option=Fals
         state0ext[5+29] = 1
         state0ext[5+36] = 1
         # propagate state and stm
-        sol = odeint(func=rhs_twobody_with_STM, y0=state0ext, t=time_array, args=(mu,), Dfun=None, col_deriv=0, full_output=0, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
+        sol = odeint(func=rhs_twobody_with_STM, y0=state0ext, t=timesay, args=(mu,), Dfun=None, col_deriv=0, full_output=0, ml=None, mu=None, rtol=ivp_rtol, atol=ivp_atol, tcrit=None, h0=0.0, hmax=0.0, hmin=0.0, ixpr=0, mxstep=0, mxhnil=0, mxordn=12, mxords=5, printmessg=0, tfirst=True)
 
         # unpack cartesian state and time
-        times = time_array       # time
-        x_arr  = sol[:,0]
-        y_arr  = sol[:,1]
-        z_arr  = sol[:,2]
-        vx_arr = sol[:,3]
-        vy_arr = sol[:,4]
-        vz_arr = sol[:,5]
+        times = timesay       # time
+        xs  = sol[:,0]
+        ys  = sol[:,1]
+        zs  = sol[:,2]
+        vxs = sol[:,3]
+        vys = sol[:,4]
+        vzs = sol[:,5]
 
         # unpack STM
-        stmmat = sol[:,6:].T
+        stms = sol[:,6:].T
     
     # create numpy array of state at final time of propagation
-    statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
+    statef = np.array([xs[-1], ys[-1], zs[-1], vxs[-1], vys[-1], vzs[-1]])
     # evaluate rhs based on final state
     dstatef = rhs_twobody(times[-1], statef, mu)
 
-    # prepare output dictionary
-    out = {
-        "times": times,
-        "xs": x_arr,
-        "ys": y_arr,
-        "zs": z_arr,
-        "vxs": vx_arr,
-        "vys": vy_arr,
-        "vzs": vz_arr,
-        "state0": state0,
-        "statef": statef, 
-        "stms":stmmat, 
-        "dstatef":dstatef, 
-        "eventStates": [], 
-        "eventTimes": []
-    }
-    return out
+    # prepare output
+    return Propout(xs, ys, zs, vxs, vys, vzs, times, state0, statef, stms, dstatef, None, None)
 
 
 # ---------------------------------------------------------------------------------------- #
 def propagate_twobody_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=False, events=None, ivp_method="LSODA", ivp_rtol=1e-12, ivp_atol=1e-12):
     """Propagator for two-body using solve_ivp()"""
     # construct time-array where state will be returned
-    time_array = np.linspace(t0, tf, steps)
+    timesay = np.linspace(t0, tf, steps)
 
     # if no STM is provided, only propagate the Cartesian state (i.e. integrate 6 differential equations)
     if stm_option==False:    
         # propagate state
-        sol = solve_ivp(fun=rhs_twobody, t_span=(0,tf), y0=state0, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+        sol = solve_ivp(fun=rhs_twobody, t_span=(0,tf), y0=state0, events=events, t_eval=timesay, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
         # unpack cartesian state and time
         times  = sol.t       # time
-        x_arr  = sol.y[0]
-        y_arr  = sol.y[1]
-        z_arr  = sol.y[2]
-        vx_arr = sol.y[3]
-        vy_arr = sol.y[4]
-        vz_arr = sol.y[5]
-        # stmmat is not returned (just a place-holder)
-        stmmat = np.zeros((1,))
+        xs  = sol.y[0]
+        ys  = sol.y[1]
+        zs  = sol.y[2]
+        vxs = sol.y[3]
+        vys = sol.y[4]
+        vzs = sol.y[5]
+        # stms is not returned (just a place-holder)
+        stms = np.zeros((1,))
 
     # if initial STM is provided, also propagate STM (i.e. integrate 6+36=42 differential equations)
     else:
@@ -152,47 +138,33 @@ def propagate_twobody_solve_ivp(mu, state0, tf, steps=2000,t0=0.0, stm_option=Fa
         state0ext[5+29] = 1
         state0ext[5+36] = 1
         # propagate state and stm
-        sol = solve_ivp(fun=rhs_twobody_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=time_array, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
+        sol = solve_ivp(fun=rhs_twobody_with_STM, t_span=(0,tf), y0=state0ext, events=events, t_eval=timesay, args=(mu,), method=ivp_method, rtol=ivp_rtol, atol=ivp_atol)
         # unpack cartesian state an#d time
         times = sol.t       # time
-        x_arr  = sol.y[0]
-        y_arr  = sol.y[1]
-        z_arr  = sol.y[2]
-        vx_arr = sol.y[3]
-        vy_arr = sol.y[4]
-        vz_arr = sol.y[5]
+        xs  = sol.y[0]
+        ys  = sol.y[1]
+        zs  = sol.y[2]
+        vxs = sol.y[3]
+        vys = sol.y[4]
+        vzs = sol.y[5]
         # unpack STM
-        stmmat = sol.y[6:,:]
+        stms = sol.y[6:,:]
     
     # create numpy array of state at final time of propagation
-    statef = np.array([x_arr[-1], y_arr[-1], z_arr[-1], vx_arr[-1], vy_arr[-1], vz_arr[-1]])
+    statef = np.array([xs[-1], ys[-1], zs[-1], vxs[-1], vys[-1], vzs[-1]])
     # evaluate rhs based on final state
     dstatef = rhs_twobody(times[-1], statef, mu)
 
     # return events
     if events is None:
-        eventStates = []
-        eventTimes = []
+        eventStates = None
+        eventTimes = None
     else:
         eventStates = sol.y_events
         eventTimes = sol.t_events
 
-    # prepare output dictionary
-    out = {
-        "times": times,
-        "xs": x_arr,
-        "ys": y_arr,
-        "zs": z_arr,
-        "vxs": vx_arr,
-        "vys": vy_arr,
-        "vzs": vz_arr,
-        "state0": state0,
-        "statef": statef, 
-        "stmmat":stmmat, 
-        "dstatef":dstatef, 
-        "eventStates":eventStates, 
-        "eventTimes":eventTimes
-    }
-    return out
+    # prepare output
+    return Propout(xs, ys, zs, vxs, vys, vzs, times, state0, statef, stms, dstatef, eventStates, eventTimes)
+
 
 

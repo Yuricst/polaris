@@ -70,7 +70,7 @@ import polaris.R3BP as r3bp
 Define the CR3BP system parameters via
 
 ```python
-param_earth_moon = r3bp.get_cr3bp_param('399','301')   # NAIF ID's '399': Earth, '301': Moon
+param_earth_moon = r3bp.CR3BP('399','301')   # NAIF ID's '399': Earth, '301': Moon
 param_earth_moon.mu
 ```
 
@@ -89,7 +89,7 @@ p_conv, state_conv, flag_conv = r3bp.ssdc_periodic_xzplane(param_earth_moon.mu, 
 We finally propagate the result
 
 ```python
-prop0 = prop.propagate_cr3bp(param_earth_moon.mu, state_conv, p_conv)
+prop0 = prop.propagate_cr3bp(param_earth_moon, state_conv, p_conv)
 ```
 
 and plot the result
@@ -97,11 +97,11 @@ and plot the result
 ```python
 plt.rcParams["font.size"] = 20
 fig, axs = plt.subplots(1, 3, figsize=(18, 8))
-axs[0].plot(prop0["xs"], prop0["ys"])
+axs[0].plot(prop0.xs, prop0.ys)
 axs[0].set(xlabel='x, canonical', ylabel='y, canonical')
-axs[1].plot(prop0["xs"], prop0["zs"])
+axs[1].plot(prop0.xs, prop0.zs)
 axs[1].set(xlabel='x, canonical', ylabel='z, canonical')
-axs[2].plot(prop0["ys"], prop0["zs"])
+axs[2].plot(prop0.ys prop0.zs)
 axs[2].set(xlabel='y, canonical', ylabel='z, canonical')
 for idx in range(3):
     axs[idx].grid(True)

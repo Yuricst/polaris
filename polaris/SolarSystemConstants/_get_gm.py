@@ -23,7 +23,7 @@ def get_gm(*args):
     de431gm = get_gm_de431()
     gm_out = []
     for naifID in args:
-        bdyname = "BODY" + naifID + "_GM"
+        bdyname = "BODY" + str(naifID) + "_GM"
         gm_out.append( de431gm[bdyname] )
     return gm_out
 
