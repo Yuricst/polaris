@@ -162,6 +162,11 @@ def keplerder(mu, state0, t0, t, tol=1e-12, maxiter=10, get_stm=False):
     
     # get lagrange coefficients
     f, g, fdot, gdot = lagrange_coefficients_der(mu, x1, alpha, la.norm(r0), la.norm(v0), sigma0, u0, u1, u2, u3, r_scal, sigma)
+    print("f", f)
+    print("g", g)
+    print("fdot", fdot)
+    print("gdot", gdot)
+
     # create map for state
     fullmap = np.array([[f, 0., 0., g, 0., 0.], [0., f, 0., 0., g, 0.], [0., 0., f, 0., 0., g],
           [fdot, 0., 0., gdot, 0., 0.], [0., fdot, 0., 0., gdot, 0.], [0., 0., fdot, 0., 0., gdot]])
