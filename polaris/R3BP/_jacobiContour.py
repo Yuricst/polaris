@@ -77,7 +77,7 @@ def get_jacobi_contour(
         ax.scatter(lp.l3[0] * scale, lp.l3[1] * scale, marker="x", s=120, c="r")
         ax.scatter(lp.l4[0] * scale, lp.l4[1] * scale, marker="x", s=120, c="r")
         ax.scatter(lp.l5[0] * scale, lp.l5[1] * scale, marker="x", s=120, c="r")
-    #plt.grid(True)
+    # plt.grid(True)
     ax.set_aspect("equal")
     return fig, ax
 
