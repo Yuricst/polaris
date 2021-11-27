@@ -28,13 +28,14 @@ def get_stm(t,n=1):
     return Phi
 
 
+@jit(nopython=True)
 def decompose_stm(Phi):
     """Decompose STM into 3-by-3 blocks"""
     M, N = Phi[0:3,0:3], Phi[0:3, 3:6]
     S, T = Phi[3:6,0:3], Phi[3:6, 3:6]
     return M,N,S,T
 
-
+#@jit(nopython=True)
 def fixed_time_transfer(r0,v0,tf,n=1.0):
     """Compute fixed-time transfer from [r0,v0] to the origin
     
@@ -55,3 +56,4 @@ def fixed_time_transfer(r0,v0,tf,n=1.0):
     # step 2. find final velocity offset
     dvf = -(np.dot(S,r0) + np.dot(T,v0_corrected))
     return dv0, dvf
+
