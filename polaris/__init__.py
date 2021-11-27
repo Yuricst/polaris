@@ -27,4 +27,4 @@ from . import Propagator
 from . import R3BP
 from . import Keplerian
 from . import Coordinates
-
+from . import LinearOrbit
