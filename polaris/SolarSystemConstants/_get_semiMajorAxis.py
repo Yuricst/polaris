@@ -39,16 +39,16 @@ def get_semiMajorAxes_dict():
         (dict): dictionary with fields defined by "BODY" + <NAIF body ID> + "_semiMajorAxis"", which contains a tuple of the GM value of the corresponding body
     """
     de431 = {
-        # "BODY1_semiMajorAxis"       : 2.2031780000000021E+04 ,
-        # "BODY2_semiMajorAxis"       : 3.2485859200000006E+05 ,
-        # "BODY3_semiMajorAxis"       : 4.0350323550225981E+05 ,
-        # "BODY4_semiMajorAxis"       : 4.2828375214000022E+04 ,
-        # "BODY5_semiMajorAxis"       : 1.2671276480000021E+08 ,
-        # "BODY6_semiMajorAxis"       : 3.7940585200000003E+07 ,
-        # "BODY7_semiMajorAxis"       : 5.7945486000000080E+06 ,
-        # "BODY8_semiMajorAxis"       : 6.8365271005800236E+06 ,
-        # "BODY9_semiMajorAxis"       : 9.7700000000000068E+02 ,
-        # "BODY10_semiMajorAxis"      : 1.3271244004193938E+11 ,
+        "BODY1_semiMajorAxis"       : 2.2031780000000021E+04 ,
+        "BODY2_semiMajorAxis"       : 3.2485859200000006E+05 ,
+        "BODY3_semiMajorAxis"       : 4.0350323550225981E+05 ,
+        "BODY4_semiMajorAxis"       : 4.2828375214000022E+04 ,
+        "BODY5_semiMajorAxis"       : 1.2671276480000021E+08 ,
+        "BODY6_semiMajorAxis"       : 3.7940585200000003E+07 ,
+        "BODY7_semiMajorAxis"       : 5.7945486000000080E+06 ,
+        "BODY8_semiMajorAxis"       : 6.8365271005800236E+06 ,
+        "BODY9_semiMajorAxis"       : 9.7700000000000068E+02 ,
+        "BODY10_semiMajorAxis"      : 1.3271244004193938E+11 ,
 
         "BODY199_semiMajorAxis"     :  57.91e6  ,
         "BODY299_semiMajorAxis"     : 108.21e6  ,
