@@ -13,4 +13,4 @@ from ._miscExpressions import get_synodic_period, get_energy, get_c3, get_hohman
 
 
 from ._kepler_propagator import kepler_propagate
-from ._keplerder import keplerder
+from ._keplerder import keplerder, hypertrig_s, hypertrig_c

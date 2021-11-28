@@ -17,8 +17,8 @@ def elts2sv(elts_dict, mu):
 	Convert keplerian elements to state-vector
 
 	Args:
-		mu (float): gravitational parameter
 		elts_dict (dict): dictionary containing "sma", inc", "ecc", "raan", "aop", "ta". Angles in radians.
+		mu (float): gravitational parameter
 
 	Returns:
 		(np.array): state-vector

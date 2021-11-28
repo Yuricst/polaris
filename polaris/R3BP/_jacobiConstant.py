@@ -19,7 +19,7 @@ def jacobiConstant(mu, state):
     Returns:
         (float): Jacobi constant
     """
-    
+
     # unpack state
     x = state[0]
     y = state[1]
@@ -28,16 +28,13 @@ def jacobiConstant(mu, state):
     vy = state[4]
     vz = state[5]
     # compute radii to each primary
-    r1 = np.sqrt( (x+mu)**2 + y**2 + z**2 )
-    r2 = np.sqrt( (x-1+mu)**2 + y**2 + z**2 )
+    r1 = np.sqrt((x + mu) ** 2 + y ** 2 + z ** 2)
+    r2 = np.sqrt((x - 1 + mu) ** 2 + y ** 2 + z ** 2)
     # compute mass parameters of each primary
     mu1 = 1 - mu
     mu2 = mu
     # compute augmented potential
-    ubar = 0.5*(x**2 + y**2) + mu1/r1 + mu2/r2
-    jc = -(vx**2 + vy**2 + vz**2) + 2*ubar
-    
+    ubar = 0.5 * (x ** 2 + y ** 2) + mu1 / r1 + mu2 / r2
+    jc = -(vx ** 2 + vy ** 2 + vz ** 2) + 2 * ubar
+
     return jc
-
-
-    

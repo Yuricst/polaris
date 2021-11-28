@@ -20,11 +20,8 @@ def ssdc(xi, ferr, df):
     Returns:
         (np.array): length-n array of new free variables
     """
-    xi_vert   = np.reshape(xi, (len(xi), -1))
+    xi_vert = np.reshape(xi, (len(xi), -1))
     ferr_vert = np.reshape(ferr, (len(ferr), -1))
-    xii_vert  = xi_vert - np.dot( la.pinv(df) , ferr_vert )
-    xii       = np.reshape(xii_vert, (len(xii_vert),))
+    xii_vert = xi_vert - np.dot(la.pinv(df), ferr_vert)
+    xii = np.reshape(xii_vert, (len(xii_vert),))
     return xii
-
-
-
