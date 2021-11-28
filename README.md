@@ -50,6 +50,7 @@ import polaris.Propagator as prop
 import polaris.R3BP as r3bp
 import polaris.Keplerian as kepl
 import polaris.Coordinates as coord
+import polaris.LinearOrbit as lino
 ```
 
 For examples, go to ```./examples/``` to see Jupyter notebook tutorials. 
@@ -77,13 +78,15 @@ param_earth_moon.mu
 We construct an initial guess of a colinear halo orbit at Earth-Moon L2 with z-direction amplitude of 4000 km via the Lindstedt*–*Poincaré method
 
 ```python
-haloinit = r3bp.get_halo_approx(mu=param_earth_moon.mu, lp=2, lstar=param_earth_moon.lstar, az_km=4000, family=1, phase=0.0)
+haloinit = r3bp.get_halo_approx(mu=param_earth_moon.mu, lp=2, lstar=param_earth_moon.lstar, 
+                                az_km=4000, family=1, phase=0.0)
 ```
 
 We then apply differential correction on the initial guess
 
 ```python
-p_conv, state_conv, flag_conv = r3bp.ssdc_periodic_xzplane(param_earth_moon.mu, haloinit["state_guess"],haloinit["period_guess"], fix="z", message=False)
+p_conv, state_conv, flag_conv = r3bp.ssdc_periodic_xzplane(param_earth_moon, haloinit["state_guess"], 
+                                                           haloinit["period_guess"], fix="z", message=False)
 ```
 
 We finally propagate the result
@@ -101,7 +104,7 @@ axs[0].plot(prop0.xs, prop0.ys)
 axs[0].set(xlabel='x, canonical', ylabel='y, canonical')
 axs[1].plot(prop0.xs, prop0.zs)
 axs[1].set(xlabel='x, canonical', ylabel='z, canonical')
-axs[2].plot(prop0.ys prop0.zs)
+axs[2].plot(prop0.ys, prop0.zs)
 axs[2].set(xlabel='y, canonical', ylabel='z, canonical')
 for idx in range(3):
     axs[idx].grid(True)
@@ -117,7 +120,7 @@ plt.show()
 We can also construct the manifolds of this halo orbit; consider for example the case of constructing its stable manifold
 
 ```python
-mnfpls, mnfmin = r3bp.get_manifold(param_earth_moon.mu, state_conv, p_conv, tf_manif=5.0, lstar=param_earth_moon.lstar, 
+mnfpls, mnfmin = r3bp.get_manifold(param_earth_moon, state_conv, p_conv, tf_manif=5.0,
                                    stable=True, force_solve_ivp=False)
 ```
 
@@ -126,11 +129,11 @@ we can now plot
 ```python
 plt.rcParams["font.size"] = 20
 fig, ax = plt.subplots(1,1, figsize=(12,8))
-for branch in mnfpls:
-    ax.plot(branch["xs"], branch["ys"], linewidth=0.8, c='deeppink')
+for branch in mnfpls.branches:
+    ax.plot(branch.propout.xs, branch.propout.ys, linewidth=0.8, c='deeppink')
     
-for branch in mnfmin:
-    ax.plot(branch["xs"], branch["ys"], linewidth=0.8, c='dodgerblue')
+for branch in mnfmin.branches:
+    ax.plot(branch.propout.xs, branch.propout.ys, linewidth=0.8, c='dodgerblue')
 
 ax.set(xlabel='x, canonical', ylabel='y, canonical', title='Stable manifold of the L2 halo')
 plt.grid(True)
