@@ -109,13 +109,13 @@ def _get_eigvecs_yu_ys(monodromy):
 
 # ---------------------------------------------------------------------------------------- #
 # function to scale epsilon, the linear perturbation term for constructing manifolds
-def _scale_epsilon(CR3BPparam, stateP, period, yu0, ys0, monodromy, stable):
+def _scale_epsilon(cr3bp_param, stateP, period, yu0, ys0, monodromy, stable):
     """Function evaluates linear perturbation approriate to the LPO
 
     Choices include: perturbation_km_lst = np.array( [0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100.0, 500.0, 1000.0] )
 
     Args:
-        CR3BPparam (CR3BP): CR3BP parameter
+        cr3bp_param (CR3BP): CR3BP parameter
         stateP (np.array): state of periodic LPO
         period (float): period of LPO
         yu0 (np.array): unstable eigenvector at stateP
@@ -127,8 +127,8 @@ def _scale_epsilon(CR3BPparam, stateP, period, yu0, ys0, monodromy, stable):
         (float): linear perturbation epsilon
     """
     # extract CR3BP arameters
-    mu = CR3BPparam.mu
-    lstar = CR3BPparam.lstar
+    mu = cr3bp_param.mu
+    lstar = cr3bp_param.lstar
 
     # tolerance
     relative_tol_manifold_lst = 0.1
@@ -163,10 +163,10 @@ def _scale_epsilon(CR3BPparam, stateP, period, yu0, ys0, monodromy, stable):
         # compute error by propagating one period
         if stable == True:  # stable case
             x0_manifold = stateP + epsilon * ys0
-            prop_manif_out = propagate_cr3bp(CR3BPparam, x0_manifold, -period)
+            prop_manif_out = propagate_cr3bp(cr3bp_param, x0_manifold, -period)
         else:  # unstable case
             x0_manifold = stateP + epsilon * yu0
-            prop_manif_out = propagate_cr3bp(CR3BPparam, x0_manifold, period)
+            prop_manif_out = propagate_cr3bp(cr3bp_param, x0_manifold, period)
 
         # actual position error
         propPositionError = la.norm(prop_manif_out.statef[0:3] - stateP[0:3])
@@ -187,7 +187,7 @@ def _scale_epsilon(CR3BPparam, stateP, period, yu0, ys0, monodromy, stable):
 # ---------------------------------------------------------------------------------------- #
 # function to generate branch of manifold
 def _get_branch(
-    CR3BPparam,
+    cr3bp_param,
     state0,
     eigvec,
     eps,
@@ -214,7 +214,7 @@ def _get_branch(
     # generate perturbed states and propagate
     ptb_state0 = state0 + eps * eigvec
     propout = propagate_cr3bp(
-        CR3BPparam,
+        cr3bp_param,
         ptb_state0,
         tf_manif,
         steps=manif_steps,
@@ -230,7 +230,7 @@ def _get_branch(
 # ---------------------------------------------------------------------------------------- #
 # function to get manifolds
 def get_manifold(
-    CR3BPparam,
+    cr3bp_param,
     stateP,
     period,
     tf_manif,
@@ -246,7 +246,7 @@ def get_manifold(
     """Function generates and returns manifolds
 
     Args:
-        mu (float): CR3BP mass parameter
+        cr3bp_param (R3BP.Parameters): CR3BP system parameters
         stateP (np.array): state of periodic motion
         period (float): period of periodic motion
         tf_manif (float): propagation time of manifold, always passed as positive value
@@ -266,12 +266,12 @@ def get_manifold(
     assert tf_manif >= 0.0
 
     # extract CR3BP arameters
-    mu = CR3BPparam.mu
-    lstar = CR3BPparam.lstar
+    mu = cr3bp_param.mu
+    lstar = cr3bp_param.lstar
 
     # propagate result for plotting along with stm (need stm!)
     propout = propagate_cr3bp(
-        CR3BPparam,
+        cr3bp_param,
         stateP,
         period,
         stm_option=True,
@@ -287,7 +287,7 @@ def get_manifold(
 
     # linear perturbation
     if eps == None:
-        eps = _scale_epsilon(CR3BPparam, stateP, period, yu0, ys0, monodromy, stable)
+        eps = _scale_epsilon(cr3bp_param, stateP, period, yu0, ys0, monodromy, stable)
 
     # get interval between the manifolds as number of points to skip
     interval_manif = propout.times.size / (num_branches)
@@ -335,7 +335,7 @@ def get_manifold(
             ys = np.dot(stm, ys0) / la.norm(np.dot(stm, ys0))
             # call function to propagate branch
             ptb_state0_pls, propout_pls = _get_branch(
-                CR3BPparam=CR3BPparam,
+                cr3bp_param=cr3bp_param,
                 state0=state0,
                 eigvec=ys,
                 eps=eps,
@@ -346,7 +346,7 @@ def get_manifold(
                 force_solve_ivp=force_solve_ivp,
             )
             ptb_state0_min, propout_min = _get_branch(
-                CR3BPparam=CR3BPparam,
+                cr3bp_param=cr3bp_param,
                 state0=state0,
                 eigvec=ys,
                 eps=-eps,
