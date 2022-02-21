@@ -371,7 +371,7 @@ def get_manifold(
             yu = np.dot(stm, yu0) / la.norm(np.dot(stm, yu0))
             # call function to propagate branch
             ptb_state0_pls, propout_pls = _get_branch(
-                mu=mu,
+                cr3bp_param=cr3bp_param,
                 state0=state0,
                 eigvec=yu,
                 eps=eps,
@@ -382,7 +382,7 @@ def get_manifold(
                 force_solve_ivp=force_solve_ivp,
             )
             ptb_state0_min, propout_min = _get_branch(
-                mu=mu,
+                cr3bp_param=cr3bp_param,
                 state0=state0,
                 eigvec=yu,
                 eps=-eps,
