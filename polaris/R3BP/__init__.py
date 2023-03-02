@@ -20,7 +20,7 @@ from ._jacobiConstant import jacobiConstant
 from ._stabilityIndex import stabilityIndex
 
 # manifold functions
-from ._manifold import get_manifold
+from ._manifold import get_manifold, _get_eigvecs_yu_ys
 
 # differential correction functions
 from ._ssdc_periodic_xzplane import ssdc_periodic_xzplane

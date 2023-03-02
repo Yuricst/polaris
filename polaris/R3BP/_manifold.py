@@ -196,6 +196,7 @@ def _get_branch(
     manif_steps=2000,
     ivp_method="LSODA",
     force_solve_ivp=False,
+    verbose=False,
 ):
     """Function wraps propagate_cr3bp to generate branch of manifold, called internally in get_manifolds()
 
@@ -207,6 +208,7 @@ def _get_branch(
         tf_manif (float): final propagation time of manifold; should be negative if stable, positive if unstable branch
         detect_rp_m2 (bool): whether to detect the periapses of the branch (default is True)
         stopAtPeriapsis (bool): whether to stop at first occurence of the periapsis (default is False)
+        verbose (bool): verbosity flag
 
     Returns:
         (tuple): tuple of np.array of perturbed state at the root of the manifold, and output dictionary from propagate_cr3bp
@@ -242,6 +244,7 @@ def get_manifold(
     ivp_method="LSODA",
     full_output=False,
     force_solve_ivp=False,
+    verbose=False,
 ):
     """Function generates and returns manifolds
 
@@ -259,6 +262,7 @@ def get_manifold(
         ivp_method (str): integrator used for propagating manifold
         full_output (bool): whether to return full information of the generated manifold
         force_solve_ivp (bool): whether to force solve_ivp() for generating manifolds
+        verbose (bool): verbosity flag
 
     Returns:
         (tuple): plus-direction and minus-direction manifold branches
@@ -284,10 +288,16 @@ def get_manifold(
     monodromy = np.reshape(propout.stms[:, -1], (6, 6))
     # extract the stable and unstable eigenvectors
     yu0, ys0 = _get_eigvecs_yu_ys(monodromy)
+    if verbose:
+        print(f"monodromy = {monodromy}")
+        print(f"yu0 = {yu0}")
+        print(f"ys0 = {ys0}")
 
     # linear perturbation
     if eps == None:
         eps = _scale_epsilon(cr3bp_param, stateP, period, yu0, ys0, monodromy, stable)
+    if verbose:
+        print(f"eps = {eps}")
 
     # get interval between the manifolds as number of points to skip
     interval_manif = propout.times.size / (num_branches)
