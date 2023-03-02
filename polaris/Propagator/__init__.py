@@ -51,6 +51,11 @@ from ._propagator_ccr4bp import (
     propagate_ccr4bp_odeint,
     propagate_ccr4bp_solve_ivp,
 )
+from ._interpolation import (
+    prepare_interpolation,
+    evaluate_interpolation,
+    evaluate_time_grid
+)
 
 # single-shooting differential correction
 from ._ssdc import ssdc
